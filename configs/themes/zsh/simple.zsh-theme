@@ -1,12 +1,17 @@
-# Standalone two-line zsh prompt with git branch. Works without oh-my-zsh.
+# Simple oh-my-zsh theme: two-line prompt with git branch.
 # Line 1:  green user@host   blue path   pink "git:<branch>" (only in a git repo)
 # Line 2:  green ❯
 #
+# --- oh-my-zsh integration ---
+# This file is copied to ~/.oh-my-zsh/custom/themes/ by `./install.sh apply`.
+# You must set ZSH_THEME="simple" in ~/.zshrc BEFORE the oh-my-zsh source line.
+#
 # --- git branch detection ---
-# vcs_info is a built-in zsh helper that fills $vcs_info_msg_0_ with repo info.
-# It must be called before every prompt render via precmd().
+# vcs_info fills $vcs_info_msg_0_ with repo info. Register it via add-zsh-hook
+# so we cooperate with oh-my-zsh's own precmd stack (do NOT override precmd()).
 autoload -Uz vcs_info
-precmd() { vcs_info }
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd vcs_info
 zstyle ':vcs_info:git:*' formats '  git:%b'   # %b = branch name
 
 # --- prompt substitution ---
