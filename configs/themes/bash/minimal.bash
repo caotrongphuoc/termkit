@@ -8,7 +8,7 @@
 # Basic 8-color palette:
 #   30 black   31 red     32 green   33 yellow
 #   34 blue    35 magenta 36 cyan    37 white
-# For a wider 256-color palette use `\e[38;5;Nm` (N = 0..255). See git-branch.bash.
+# For a wider 256-color palette use `\e[38;5;Nm` (N = 0..255). See ak.bash.
 #
 # Wrap non-printing sequences in \[...\] so bash counts prompt width correctly
 # when your input line wraps.
