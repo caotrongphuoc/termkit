@@ -204,7 +204,54 @@ apply_all()
 
 uninstall_all()
 {
-    echo "uninstall: not implemented yet, coming in a later step."
+    local bashrc="$HOME/.bashrc"
+    local backup="$HOME/.bashrc.termkit.bak"
+    local fonts_dir="$HOME/.local/share/fonts"
+    local removed_any=0
+
+    # Strip the managed block from ~/.bashrc if present.
+    if [ -f "$bashrc" ] && grep -q "^${BLOCK_START}\$" "$bashrc" 2>/dev/null; then
+        sed -i "\|^${BLOCK_START}\$|,\|^${BLOCK_END}\$|d" "$bashrc"
+        echo "Removed termkit block from $bashrc"
+        removed_any=1
+    else
+        echo "No termkit block found in $bashrc"
+    fi
+
+    # Remove any font under ~/.local/share/fonts whose basename matches
+    # a file we ship in configs/fonts. We do not touch fonts installed
+    # from elsewhere.
+    if [ -d "$fonts_dir" ]; then
+        local removed_font=0 name
+        local -a shipped=()
+        mapfile -t shipped < <(
+            cd "$SCRIPT_DIR/configs/fonts" 2>/dev/null || exit
+            shopt -s nullglob
+            for f in *.ttf; do printf '%s\n' "$f"; done
+        )
+        for name in "${shipped[@]}"; do
+            if [ -f "$fonts_dir/$name" ]; then
+                rm -f "$fonts_dir/$name"
+                echo "Removed font: $fonts_dir/$name"
+                removed_font=1
+                removed_any=1
+            fi
+        done
+        if [ "$removed_font" -eq 1 ] && command -v fc-cache >/dev/null 2>&1; then
+            fc-cache -f >/dev/null 2>&1
+            echo "Refreshed font cache"
+        fi
+    fi
+
+    if [ "$removed_any" -eq 1 ]; then
+        echo "Uninstall complete."
+        if [ -f "$backup" ]; then
+            echo "Original bashrc backup kept at: $backup"
+            echo "  restore with: cp \"$backup\" \"$bashrc\""
+        fi
+    else
+        echo "Nothing to uninstall."
+    fi
 }
 
 
