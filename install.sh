@@ -68,6 +68,12 @@ load_settings()
         exit 1
     fi
 
+    shell_name=$(conf_get shell name)
+    # Default to bash when [shell] is missing (backward compat with v0.1 files).
+    if [ -z "$shell_name" ]; then
+        shell_name="bash"
+    fi
+
     theme_name=$(conf_get theme name)
     font_name=$(conf_get font name)
     font_install=$(conf_get font install)
@@ -84,6 +90,7 @@ show_status()
     load_settings
     echo "=== termkit status ==="
     echo " settings file : $CONF_FILE"
+    echo " shell         : $shell_name"
     echo " theme         : $theme_name"
     echo " font          : $font_name  (install: $font_install)"
     echo " logo          : $logo_file  (enabled: $logo_enabled)"
@@ -100,6 +107,9 @@ reset_settings()
     cat > "$CONF_FILE" <<'EOF'
 # termkit state file.
 # Edit values below then run: ./install.sh apply
+
+[shell]
+name=bash
 
 [theme]
 name=default
