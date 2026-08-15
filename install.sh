@@ -364,7 +364,8 @@ apply_zsh()
         echo "$BLOCK_END"
     } >> "$zshrc"
 
-    echo "Applied. Open a new shell (or run: source ~/.zshrc) to see changes."
+    echo "Applied. Open a new terminal to see changes."
+    echo "  (if your login shell is still bash, run 'zsh' — 'source ~/.zshrc' from bash will fail because oh-my-zsh refuses to load under bash)"
 }
 
 uninstall_all()

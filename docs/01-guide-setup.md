@@ -97,6 +97,8 @@ Log out and back in after running:
 chsh -s "$(which zsh)"
 ```
 
+> **Note:** Until you do this, new terminals still open in bash. To try zsh in the current terminal without changing your login shell, just type `zsh`. Do not run `source ~/.zshrc` from bash — oh-my-zsh refuses to load under bash and will print an error.
+
 ---
 
 ## IV. Optional extras

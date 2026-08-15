@@ -32,11 +32,14 @@ Once prerequisites are installed (see [docs/01-guide-setup.md](docs/01-guide-set
 ```
 git clone https://github.com/caotrongphuoc/termkit.git ~/termkit
 cd ~/termkit
-$EDITOR configs/settings.conf     # pick shell, theme, logo, aliases
+nano configs/settings.conf     # or vim, gedit, code — pick shell, theme, logo, aliases
 ./install.sh apply
 ```
 
-Then open a new terminal, or `source ~/.bashrc` / `source ~/.zshrc`.
+Then open a new terminal to see changes.
+
+- For `bash`: any new terminal picks up `~/.bashrc` automatically. In the current shell you can also run `source ~/.bashrc`.
+- For `zsh`: open a new terminal. If your login shell is still bash (you have not run `chsh -s $(which zsh)`), type `zsh` in the current terminal instead — `source ~/.zshrc` from bash will not work because oh-my-zsh refuses to load under bash.
 
 To undo: `./install.sh uninstall`.
 
