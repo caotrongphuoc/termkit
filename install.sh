@@ -74,6 +74,9 @@ load_settings()
         shell_name="bash"
     fi
 
+    # zsh-only settings. Empty when [zsh] section is missing (backward compat).
+    zsh_plugins=$(conf_get zsh plugins)
+
     theme_name=$(conf_get theme name)
     font_name=$(conf_get font name)
     font_install=$(conf_get font install)
@@ -101,6 +104,9 @@ show_status()
     echo "=== termkit status ==="
     echo " settings file : $CONF_FILE"
     echo " shell         : $shell_name"
+    if [ "$shell_name" = "zsh" ]; then
+        echo " zsh plugins   : ${zsh_plugins:-(none)}"
+    fi
     echo " theme         : $theme_name"
     echo " font          : $font_name  (install: $font_install)"
     echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
@@ -123,6 +129,13 @@ reset_settings()
 [shell]
 # name: bash | zsh
 name=bash
+
+[zsh]
+# plugins: space-separated list of oh-my-zsh plugin names, or empty.
+#          When non-empty and shell=zsh, apply patches the plugins=(...)
+#          line in ~/.zshrc before the oh-my-zsh source line.
+#          Example: plugins=git zsh-syntax-highlighting zsh-autosuggestions
+plugins=
 
 [theme]
 # name: basename of a file in configs/themes/<shell>/
@@ -259,6 +272,40 @@ apply_bash()
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
 }
 
+# _patch_zshrc_line <new_line> <match_regex> <label>
+# Idempotently updates a single line in ~/.zshrc.
+#   1) If a line matching <match_regex> exists, replace it with <new_line>.
+#   2) Else, insert <new_line> right before 'source $ZSH/oh-my-zsh.sh'.
+#   3) Else, print a warning telling the user to add it manually.
+# <label> is used only for status messages.
+_patch_zshrc_line()
+{
+    local new="$1"
+    local pattern="$2"
+    local label="$3"
+    local zshrc="$HOME/.zshrc"
+    local tmp
+    tmp=$(mktemp)
+
+    if grep -q "$pattern" "$zshrc"; then
+        awk -v new="$new" -v pat="$pattern" '
+            $0 ~ pat { print new; next }
+            { print }
+        ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+        echo "Updated $label to '$new' in $zshrc"
+    elif grep -qF 'source $ZSH/oh-my-zsh.sh' "$zshrc"; then
+        awk -v new="$new" '
+            /^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 }
+            { print }
+        ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+        echo "Inserted '$new' before oh-my-zsh source line in $zshrc"
+    else
+        rm -f "$tmp"
+        echo "WARNING: could not find $label line or oh-my-zsh source in $zshrc."
+        echo "         Add this line manually near the top: $new"
+    fi
+}
+
 # _apply_fastfetch_config
 # Overwrites ~/.config/fastfetch/config.jsonc with the shipped file whose
 # basename matches [fastfetch] config. No-op when config=none.
@@ -364,28 +411,15 @@ apply_zsh()
             cp -f "$theme_file" "$omz_custom/$theme_name.zsh-theme"
             echo "Installed oh-my-zsh theme: $omz_custom/$theme_name.zsh-theme"
 
-            local tmp
-            tmp=$(mktemp)
-            if grep -q '^ZSH_THEME=' "$zshrc"; then
-                awk -v new="ZSH_THEME=\"$theme_name\"" '
-                    /^ZSH_THEME=/ { print new; next }
-                    { print }
-                ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
-                echo "Updated ZSH_THEME to \"$theme_name\" in $zshrc"
-            elif grep -qF 'source $ZSH/oh-my-zsh.sh' "$zshrc"; then
-                awk -v new="ZSH_THEME=\"$theme_name\"" '
-                    /^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 }
-                    { print }
-                ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
-                echo "Inserted ZSH_THEME=\"$theme_name\" before oh-my-zsh source line in $zshrc"
-            else
-                rm -f "$tmp"
-                echo "WARNING: could not find ZSH_THEME line or oh-my-zsh source in $zshrc."
-                echo "         Add this line manually near the top: ZSH_THEME=\"$theme_name\""
-            fi
+            _patch_zshrc_line "ZSH_THEME=\"$theme_name\"" '^ZSH_THEME=' "ZSH_THEME"
         else
             echo "WARNING: ~/.oh-my-zsh not found. Install oh-my-zsh first, then re-run apply."
         fi
+    fi
+
+    # Patch plugins=(...) line in ~/.zshrc if [zsh] plugins is non-empty.
+    if [ -n "$zsh_plugins" ]; then
+        _patch_zshrc_line "plugins=($zsh_plugins)" '^plugins=' "plugins"
     fi
 
     _apply_fastfetch_config
