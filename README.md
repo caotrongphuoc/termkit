@@ -19,11 +19,11 @@
 
 ## Introduction
 
-termkit is a small toolkit for configuring Linux terminals — pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
+Termkit is a small toolkit for configuring Linux terminals — pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
 
 - **State file:** A single `configs/settings.conf` captures every choice you have made.
 - **Managed block:** Termkit only writes a fenced block into `~/.bashrc` or `~/.zshrc`; the rest of the file is untouched.
-- **Reversible:** Every apply is idempotent; a single `uninstall` command wipes the block and any files termkit installed.
+- **Reversible:** Every apply is idempotent; a single `uninstall` command wipes the block and any files Termkit installed.
 
 ### I. How to Use
 
@@ -47,7 +47,7 @@ To undo: `./install.sh uninstall`.
 | `./install.sh apply` | Reads settings.conf and applies to your shell rc. |
 | `./install.sh status` | Prints current settings.conf values. |
 | `./install.sh clean` | Resets settings.conf to defaults (old file kept as `.bak`). |
-| `./install.sh uninstall` | Removes termkit changes from both `~/.bashrc` and `~/.zshrc`. |
+| `./install.sh uninstall` | Removes Termkit changes from both `~/.bashrc` and `~/.zshrc`. |
 | `./install.sh` | Prints usage. |
 
 ### III. Repo Layout
