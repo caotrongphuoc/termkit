@@ -134,7 +134,18 @@ BLOCK_END="# <<< termkit end <<<"
 apply_all()
 {
     load_settings
+    case "$shell_name" in
+        bash) apply_bash ;;
+        zsh)  apply_zsh ;;
+        *)
+            echo "unsupported shell: $shell_name (expected: bash or zsh)"
+            exit 1
+            ;;
+    esac
+}
 
+apply_bash()
+{
     local bashrc="$HOME/.bashrc"
     local backup="$HOME/.bashrc.termkit.bak"
 
@@ -150,7 +161,7 @@ apply_all()
     fi
 
     # Verify the referenced files exist before touching bashrc.
-    local theme_file="$SCRIPT_DIR/configs/themes/$theme_name.conf"
+    local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.conf"
     if [ ! -f "$theme_file" ]; then
         echo "theme file not found: $theme_file"
         exit 1
@@ -210,6 +221,11 @@ apply_all()
     } >> "$bashrc"
 
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
+}
+
+apply_zsh()
+{
+    echo "zsh apply: not implemented yet, coming in the next part."
 }
 
 uninstall_all()
