@@ -86,11 +86,22 @@ git clone https://github.com/zsh-users/zsh-autosuggestions \
   ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 ```
 
-Then edit `~/.zshrc`. Find the line starting with `plugins=(` and add the plugin names:
+Then enable the plugins. Two options:
 
-```
-plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
-```
+- **Let Termkit patch `~/.zshrc` for you** — set in `configs/settings.conf`:
+
+  ```
+  [zsh]
+  plugins=git zsh-syntax-highlighting zsh-autosuggestions
+  ```
+
+  On `./install.sh apply`, Termkit replaces the existing `plugins=(...)` line (or inserts one before the oh-my-zsh source line).
+
+- **Manage plugins yourself** — leave `[zsh] plugins=` empty in `settings.conf`, then edit `~/.zshrc` directly. Find the line starting with `plugins=(` and set:
+
+  ```
+  plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
+  ```
 
 > **Note:** If zsh prints `[oh-my-zsh] Insecure completion-dependent directories detected`, the plugin folders (and possibly the completion cache) have group-writable permissions from your umask. Oh-my-zsh will keep printing this on every startup until you fix it. Run this command inside zsh — not bash, because `compaudit` is a zsh built-in — then open a new terminal (or `exec zsh`):
 >

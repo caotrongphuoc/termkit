@@ -54,6 +54,9 @@ Open `configs/settings.conf` in your editor and set:
 [shell]
 name=zsh
 
+[zsh]
+plugins=git zsh-syntax-highlighting zsh-autosuggestions
+
 [theme]
 name=ak
 
@@ -83,10 +86,11 @@ enabled=true
 ./install.sh apply
 ```
 
-Termkit does three things:
+Termkit does four things:
 
 - Copies `ak.zsh-theme` into `~/.oh-my-zsh/custom/themes/`.
 - Auto-patches `ZSH_THEME="ak"` in `~/.zshrc` (replaces the existing line, or inserts one before the `source $ZSH/oh-my-zsh.sh` line).
+- Auto-patches `plugins=(git zsh-syntax-highlighting zsh-autosuggestions)` in `~/.zshrc` the same way.
 - Appends a managed block at the end of `~/.zshrc` that runs fastfetch and sources aliases.
 
 You should see output like:

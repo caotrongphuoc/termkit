@@ -21,6 +21,11 @@ This document describes the `configs/settings.conf` schema and what happens when
 [shell]
 name=bash                 # bash or zsh
 
+[zsh]
+plugins=                  # space-separated oh-my-zsh plugin names, or empty
+                          # when non-empty (and shell=zsh), apply patches the
+                          # plugins=(...) line in ~/.zshrc
+
 [theme]
 name=default              # basename of a file in configs/themes/<shell>/ (no extension)
                           # for bash: matches <name>.bash
@@ -58,6 +63,7 @@ enabled=false             # source configs/aliases.sh on shell start
 
 - Same as bash, but writes to `~/.zshrc` and `~/.zshrc.termkit.bak`.
 - If the theme is a `.zsh-theme` file, copies it to `~/.oh-my-zsh/custom/themes/<name>.zsh-theme` **and auto-patches `ZSH_THEME="<name>"` in `~/.zshrc`** (replaces the existing `ZSH_THEME=` line, or inserts one before the `source $ZSH/oh-my-zsh.sh` line). Standalone `.zsh` themes are sourced from the managed block directly.
+- If `[zsh] plugins` is non-empty, **auto-patches `plugins=(...)` in `~/.zshrc`** the same way (replace or insert-before-source). Empty leaves the line alone.
 
 ### 3. Common to both
 
