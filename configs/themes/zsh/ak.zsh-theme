@@ -1,5 +1,9 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
+# AK's desktop terminal theme: pixegami-agnoster (unchanged upstream).
+# Upstream: https://github.com/pixegami/terminal-profile
+# Set ZSH_THEME="ak" in ~/.zshrc BEFORE the oh-my-zsh source line.
+#
 # Original agnoster's Theme - https://gist.github.com/3712874
 # A Powerline-inspired theme for ZSH
 # Pixegami: Modified some elements to suit my Python/Git heavy use.
