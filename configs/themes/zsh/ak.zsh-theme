@@ -7,6 +7,15 @@
 # Original agnoster's Theme - https://gist.github.com/3712874
 # A Powerline-inspired theme for ZSH
 # Pixegami: Modified some elements to suit my Python/Git heavy use.
+#
+# ------------------------------------------------------------------
+# CUSTOMIZATION GUIDE
+# ------------------------------------------------------------------
+# Look for `# TWEAK:` lines below — they mark the places most likely
+# to change. Run `grep -n TWEAK ak.zsh-theme` to list them all.
+# Color numbers are 0..255 palette indices; preview with:
+#   for i in {0..255}; do print -P "%F{$i}$i%f"; done
+# ------------------------------------------------------------------
 
 
 CURRENT_BG='NONE'
@@ -25,6 +34,7 @@ CURRENT_BG='NONE'
   # what font the user is viewing this source code in. Do not replace the
   # escape sequence with a single literal character.
   # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
+  # TWEAK: no Nerd/Powerline font? Swap to plain char: '>' | '|' | '❯'
   SEGMENT_SEPARATOR=$'\ue0b0'
 }
 
@@ -60,6 +70,9 @@ prompt_end() {
 
 # Context: user@hostname (who am I and where am I)
 prompt_context() {
+  # TWEAK: bg=008 (dark grey), fg=010 (bright green). Swap for any 0..255.
+  # TWEAK: content "%n" = username only. Use "%n@%m" to also show hostname.
+  # TWEAK: root color = yellow. Change `%F{yellow}` inside the %(!....) block.
   prompt_segment 008 010 "%(!.%{%F{yellow}%}.)%n"
 }
 
@@ -69,6 +82,7 @@ prompt_git() {
   local PL_BRANCH_CHAR
   () {
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+    # TWEAK: git branch icon. Needs Nerd font. Fallbacks: ''  |  git:  
     PL_BRANCH_CHAR=$'\ue0a0'         # 
   }
   local ref dirty mode repo_path
@@ -77,12 +91,16 @@ prompt_git() {
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
+    # TWEAK: git segment colors.
+    #   dirty = yellow bg + black fg. clean = 014 (cyan) bg + 002 (green) fg.
     if [[ -n $dirty ]]; then
       prompt_segment yellow black
     else
       prompt_segment 014 002
     fi
 
+    # TWEAK: mode indicators shown when git is bisecting/merging/rebasing.
+    #   Swap strings for icons if you like:  ⎇  or  or plain 'BISECT'/'MERGE'/'REBASE'.
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
       mode=" <B>"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
@@ -97,6 +115,9 @@ prompt_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
+    # TWEAK: dirty indicators after the branch name.
+    #   '+' shown when there are staged changes; '-' when unstaged.
+    #   Any single char works: '✚' / '●' / '*' etc.
     zstyle ':vcs_info:*' stagedstr '+'
     zstyle ':vcs_info:*' unstagedstr '-'
     zstyle ':vcs_info:*' formats ' %u%c'
@@ -170,6 +191,9 @@ prompt_dir() {
 }
 
 # Virtualenv: current working virtualenv
+# TWEAK: this only fires for Anaconda. For plain venv/virtualenv, swap body to:
+#   [[ -n $VIRTUAL_ENV ]] && prompt_segment black default "${VIRTUAL_ENV:t}"
+# (${VAR:t} is zsh's basename modifier.)
 prompt_virtualenv() {
   if [[ -n $CONDA_PROMPT_MODIFIER ]]; then
     prompt_segment black default ${CONDA_PROMPT_MODIFIER:1:-2}
@@ -183,6 +207,8 @@ prompt_virtualenv() {
 prompt_status() {
   local symbols
   symbols=()
+  # TWEAK: swap emojis and colors below. Delete a line to drop a status.
+  #   ✘ = last command non-zero  |  ⚡ = root  |  ⚙ = background jobs
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
@@ -191,11 +217,23 @@ prompt_status() {
 }
 
 prompt_head() {
+  # TWEAK: line 1 of the two-line prompt.
+  #   %~   = working dir with ~ for $HOME. Change format freely.
+  #   %64<..<%~%<<  = truncate to 64 chars. Change 64 to shrink/grow.
+  #   %F{7} = light grey. Any 0..255.
+  # Add a timestamp:  [%D{%H:%M} | %64<..<%~%<<]
+  # Compact single-line prompt: return early with `return` — but then move %~ into build_prompt.
   echo "\r               "  # Clear prevous line
   echo "\r %{%F{7}%}[%64<..<%~%<<]"  # Print Dir.
 }
 
 ## Main prompt
+# TWEAK: this list picks which segments render and in what order.
+#   Comment out any line to hide that segment. Reorder to change layout.
+#   `prompt_bzr` / `prompt_hg` are for Bazaar / Mercurial repos — safe to
+#   remove on a git-only machine (saves one `command -v` check per prompt).
+#   Do NOT move `RETVAL=$?` — it captures the exit code of the last command
+#   BEFORE anything else runs, so `prompt_status` can report success/fail.
 build_prompt() {
   RETVAL=$?
   prompt_head
