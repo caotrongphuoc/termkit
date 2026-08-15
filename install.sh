@@ -354,16 +354,35 @@ apply_zsh()
         fi
     fi
 
-    # For oh-my-zsh themes: copy into custom themes and remind the user.
-    # We do NOT set ZSH_THEME automatically because it must be set BEFORE
-    # 'source $ZSH/oh-my-zsh.sh' in ~/.zshrc, and our block sits at the end.
+    # For oh-my-zsh themes: copy into custom themes and patch ZSH_THEME in
+    # ~/.zshrc automatically (it must be set BEFORE 'source $ZSH/oh-my-zsh.sh',
+    # which is why our end-of-file managed block cannot handle it).
     if [ "$is_omz_theme" = "1" ]; then
         if [ -d "$HOME/.oh-my-zsh" ]; then
             local omz_custom="$HOME/.oh-my-zsh/custom/themes"
             mkdir -p "$omz_custom"
             cp -f "$theme_file" "$omz_custom/$theme_name.zsh-theme"
             echo "Installed oh-my-zsh theme: $omz_custom/$theme_name.zsh-theme"
-            echo "NOTE: edit ~/.zshrc and set ZSH_THEME=\"$theme_name\" BEFORE the oh-my-zsh source line."
+
+            local tmp
+            tmp=$(mktemp)
+            if grep -q '^ZSH_THEME=' "$zshrc"; then
+                awk -v new="ZSH_THEME=\"$theme_name\"" '
+                    /^ZSH_THEME=/ { print new; next }
+                    { print }
+                ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+                echo "Updated ZSH_THEME to \"$theme_name\" in $zshrc"
+            elif grep -qF 'source $ZSH/oh-my-zsh.sh' "$zshrc"; then
+                awk -v new="ZSH_THEME=\"$theme_name\"" '
+                    /^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 }
+                    { print }
+                ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+                echo "Inserted ZSH_THEME=\"$theme_name\" before oh-my-zsh source line in $zshrc"
+            else
+                rm -f "$tmp"
+                echo "WARNING: could not find ZSH_THEME line or oh-my-zsh source in $zshrc."
+                echo "         Add this line manually near the top: ZSH_THEME=\"$theme_name\""
+            fi
         else
             echo "WARNING: ~/.oh-my-zsh not found. Install oh-my-zsh first, then re-run apply."
         fi
