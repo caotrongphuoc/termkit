@@ -120,7 +120,7 @@ name=bash
 
 [theme]
 # name: basename of a file in configs/themes/<shell>/
-#       bash: matches <name>.conf
+#       bash: matches <name>.bash
 #       zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
 name=default
 
@@ -178,7 +178,7 @@ apply_bash()
     fi
 
     # Verify the referenced files exist before touching bashrc.
-    local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.conf"
+    local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.bash"
     if [ ! -f "$theme_file" ]; then
         echo "theme file not found: $theme_file"
         exit 1

@@ -29,7 +29,7 @@ termkit/
 └── configs/
     ├── settings.conf                     # state file: your picks live here
     ├── themes/
-    │   ├── bash/*.conf                   # bash themes: set PS1, LS_COLORS, ...
+    │   ├── bash/*.bash                   # bash themes: set PS1, LS_COLORS, ...
     │   └── zsh/
     │       ├── *.zsh                     # standalone zsh themes (no oh-my-zsh)
     │       └── *.zsh-theme               # oh-my-zsh themes
@@ -46,7 +46,8 @@ name=bash                 # bash or zsh
 
 [theme]
 name=default              # basename of a file in configs/themes/<shell>/
-                          # for zsh: matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
+                          # for bash: matches <name>.bash
+                          # for zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
 
 [font]
 name=none                 # basename of a file in configs/fonts/*.ttf, or none
@@ -107,7 +108,7 @@ Managed block markers:
 
 ## Adding your own theme, font, or logo
 
-- **Bash theme**: drop `mytheme.conf` into `configs/themes/bash/`. Inside, set `PS1`, `LS_COLORS`, or anything else. Set `[shell] name=bash` and `[theme] name=mytheme`.
+- **Bash theme**: drop `mytheme.bash` into `configs/themes/bash/`. Inside, set `PS1`, `LS_COLORS`, or anything else. Set `[shell] name=bash` and `[theme] name=mytheme`.
 - **Zsh standalone theme**: drop `mytheme.zsh` into `configs/themes/zsh/`. Inside, set `PROMPT`, `autoload -Uz vcs_info`, etc. Only requires zsh.
 - **Zsh oh-my-zsh theme**: drop `mytheme.zsh-theme` into `configs/themes/zsh/`. Requires oh-my-zsh at `~/.oh-my-zsh/`.
 - **Font**: drop `MyFont.ttf` into `configs/fonts/`. Set `[font] name=MyFont`, `install=true`.
