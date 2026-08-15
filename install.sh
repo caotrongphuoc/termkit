@@ -112,23 +112,34 @@ reset_settings()
     cat > "$CONF_FILE" <<'EOF'
 # termkit state file.
 # Edit values below then run: ./install.sh apply
+# Comments start with '#'. Values are: key=value under [sections].
 
 [shell]
+# name: bash | zsh
 name=bash
 
 [theme]
+# name: basename of a file in configs/themes/<shell>/
+#       bash: matches <name>.conf
+#       zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
 name=default
 
 [font]
+# name: basename of a file in configs/fonts/*.ttf, or 'none'
 name=none
+# install: true = copy the .ttf to ~/.local/share/fonts and refresh cache
 install=false
 
 [logo]
+# enabled: true = print the logo on shell start
 enabled=false
+# file: basename of a file in configs/logo/*.txt, or 'none'
 file=none
+# use_fastfetch: true = print via `fastfetch --logo` (falls back to `cat` if missing)
 use_fastfetch=false
 
 [aliases]
+# enabled: true = source configs/aliases.sh on shell start
 enabled=false
 EOF
     echo "Settings reset to defaults at $CONF_FILE"
