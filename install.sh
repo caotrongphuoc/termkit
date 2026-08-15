@@ -231,6 +231,8 @@ apply_bash()
         fi
     fi
 
+    _apply_fastfetch_config
+
     # Decide how to print the logo: fastfetch if requested and available, else cat.
     local logo_cmd=""
     if [ -n "$logo_path" ]; then
@@ -255,6 +257,22 @@ apply_bash()
     } >> "$bashrc"
 
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
+}
+
+# _apply_fastfetch_config
+# Overwrites ~/.config/fastfetch/config.jsonc with the shipped file whose
+# basename matches [fastfetch] config. No-op when config=none.
+_apply_fastfetch_config()
+{
+    [ "$fastfetch_config" = "none" ] && return
+    local src="$SCRIPT_DIR/configs/fastfetch/$fastfetch_config.jsonc"
+    if [ ! -f "$src" ]; then
+        echo "fastfetch config not found: $src"
+        exit 1
+    fi
+    mkdir -p "$HOME/.config/fastfetch"
+    cp -f "$src" "$HOME/.config/fastfetch/config.jsonc"
+    echo "Installed fastfetch config: $HOME/.config/fastfetch/config.jsonc"
 }
 
 # _render_logo_cmd <path>
@@ -351,6 +369,8 @@ apply_zsh()
         fi
     fi
 
+    _apply_fastfetch_config
+
     local logo_cmd=""
     if [ -n "$logo_path" ]; then
         logo_cmd=$(_render_logo_cmd "$logo_path")
@@ -442,6 +462,23 @@ uninstall_all()
                 rm -f "$omz_themes/$name"
                 echo "Removed oh-my-zsh theme: $omz_themes/$name"
                 removed_any=1
+            fi
+        done
+    fi
+
+    # Remove ~/.config/fastfetch/config.jsonc only if it matches one of the
+    # shipped configs/fastfetch/*.jsonc files byte-for-byte. If the user
+    # edited it after apply, leave it alone.
+    local ff_config="$HOME/.config/fastfetch/config.jsonc"
+    if [ -f "$ff_config" ] && [ -d "$SCRIPT_DIR/configs/fastfetch" ]; then
+        local shipped
+        for shipped in "$SCRIPT_DIR/configs/fastfetch"/*.jsonc; do
+            [ -e "$shipped" ] || continue
+            if cmp -s "$ff_config" "$shipped"; then
+                rm -f "$ff_config"
+                echo "Removed fastfetch config: $ff_config"
+                removed_any=1
+                break
             fi
         done
     fi
