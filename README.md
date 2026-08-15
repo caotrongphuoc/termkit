@@ -6,7 +6,7 @@
 
 # Termkit - Terminal Setup Kit for Linux
 
-<center><img width="1200" height="1200" alt="AK Sample" src="resources/images/sample_ak.png" />
+<center><img width="900" height="700" alt="AK Sample" src="resources/images/sample_ak.png" />
 </center>
 
 <hr>
