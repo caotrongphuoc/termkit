@@ -1,4 +1,4 @@
-<h1 align="center">Extending termkit</h1>
+<h1 align="center">Extending Termkit</h1>
 
 Add your own theme, font, or logo to the kit. Everything lives under `configs/`; drop a file in the right folder and point `settings.conf` at it.
 
@@ -47,7 +47,7 @@ name=mytheme
 
 Drop `mytheme.zsh-theme` into `configs/themes/zsh/`. Requires oh-my-zsh at `~/.oh-my-zsh/`.
 
-Termkit copies the file to `~/.oh-my-zsh/custom/themes/` on apply. You then set `ZSH_THEME="mytheme"` manually in `~/.zshrc`, BEFORE the `source $ZSH/oh-my-zsh.sh` line.
+On apply, Termkit copies the file to `~/.oh-my-zsh/custom/themes/`. You then set `ZSH_THEME="mytheme"` manually in `~/.zshrc`, BEFORE the `source $ZSH/oh-my-zsh.sh` line.
 
 ---
 
@@ -61,7 +61,7 @@ name=MyFont
 install=true
 ```
 
-On apply, termkit copies the file into `~/.local/share/fonts/` and refreshes the cache with `fc-cache -f`.
+On apply, Termkit copies the file into `~/.local/share/fonts/` and refreshes the cache with `fc-cache -f`.
 
 ---
 

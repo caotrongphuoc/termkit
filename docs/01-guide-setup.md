@@ -1,6 +1,6 @@
 <h1 align="center">Setup guide</h1>
 
-Install the tools termkit needs on your machine BEFORE cloning the repo. This document lists exactly what to install for each supported shell, plus optional extras.
+Install the tools Termkit needs on your machine BEFORE cloning the repo. This document lists exactly what to install for each supported shell, plus optional extras.
 
 ---
 
@@ -105,13 +105,43 @@ chsh -s "$(which zsh)"
 
 Only when `[logo] use_fastfetch=true`. Prints the logo alongside OS info instead of plain `cat`.
 
+fastfetch is not in the default apt repos of older Ubuntu (22.04 and earlier). Pick one of the install methods below.
+
+**a. Download the .deb from GitHub releases** — works on any Ubuntu version:
+
 ```
+curl -LO https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb
+sudo dpkg -i fastfetch-linux-amd64.deb
+sudo apt install -f     # fix missing deps if any
+```
+
+**b. PPA** — auto-updates through apt afterwards:
+
+```
+sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
+sudo apt update
 sudo apt install fastfetch
 ```
 
+**c. Snap:**
+
+```
+sudo snap install fastfetch
+```
+
+**d. Direct apt** — only on Ubuntu 24.04+ and current Fedora / Arch:
+
+```
+sudo apt install fastfetch          # Debian 13+, Ubuntu 24.04+
+sudo dnf install fastfetch          # Fedora
+sudo pacman -S fastfetch            # Arch
+```
+
+Verify with `fastfetch --version`.
+
 ### 2. fontconfig
 
-Only when `[font] install=true`. Provides `fc-cache` to refresh the font cache after termkit copies fonts into `~/.local/share/fonts/`.
+Only when `[font] install=true`. Provides `fc-cache` to refresh the font cache after Termkit copies fonts into `~/.local/share/fonts/`.
 
 ```
 sudo apt install fontconfig

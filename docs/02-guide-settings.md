@@ -39,7 +39,7 @@ use_fastfetch=false       # print via `fastfetch --logo` (falls back to `cat` if
 enabled=false             # source configs/aliases.sh on shell start
 ```
 
-> **Note:** Values for `theme.name`, `font.name`, and `logo.file` are basenames without extension — termkit appends the right extension based on shell / file type.
+> **Note:** Values for `theme.name`, `font.name`, and `logo.file` are basenames without extension — Termkit appends the right extension based on shell / file type.
 
 ---
 
@@ -65,7 +65,7 @@ enabled=false             # source configs/aliases.sh on shell start
 
 ## III. Managed block markers
 
-Termkit only writes between these two lines. Anything above `# >>> termkit start >>>` and below `# <<< termkit end <<<` is your own.
+Termkit only writes between these two markers. Anything above `# >>> termkit start >>>` and below `# <<< termkit end <<<` is your own.
 
 ```
 # >>> termkit start >>>
