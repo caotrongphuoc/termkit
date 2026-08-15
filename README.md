@@ -64,6 +64,7 @@ termkit/
 │   ├── themes/{bash,zsh}/         # shell prompts
 │   ├── fonts/*.ttf                # copied to ~/.local/share/fonts when enabled
 │   ├── logo/*.txt                 # printed on shell start when enabled
+│   ├── fastfetch/*.jsonc          # copied to ~/.config/fastfetch/config.jsonc when set
 │   └── aliases.sh                 # sourced when aliases are enabled
 └── docs/
     ├── 01-guide-setup.md

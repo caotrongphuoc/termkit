@@ -12,6 +12,7 @@ Add your own theme, font, or logo to the kit. Everything lives under `configs/`;
   - [3. Zsh oh-my-zsh theme](#3-zsh-oh-my-zsh-theme)
 - [II. Font](#ii-font)
 - [III. Logo](#iii-logo)
+- [IV. Fastfetch config](#iv-fastfetch-config)
 
 ---
 
@@ -75,3 +76,16 @@ enabled=true
 file=mylogo
 use_fastfetch=false       # or true to render with fastfetch instead of cat
 ```
+
+---
+
+## IV. Fastfetch config
+
+Drop `myconfig.jsonc` into `configs/fastfetch/`. See the [fastfetch config wiki](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration) for the format.
+
+```
+[fastfetch]
+config=myconfig
+```
+
+On apply, Termkit copies the file into `~/.config/fastfetch/config.jsonc` (overwrite, no backup). On uninstall, the file is removed only if its content is still byte-for-byte identical to your shipped file — hand-edits are preserved.

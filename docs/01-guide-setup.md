@@ -16,6 +16,9 @@ Install the tools Termkit needs on your machine BEFORE cloning the repo. This do
 - [IV. Optional extras](#iv-optional-extras)
   - [1. fastfetch](#1-fastfetch)
   - [2. fontconfig](#2-fontconfig)
+- [V. Nerd Font for Powerline glyphs](#v-nerd-font-for-powerline-glyphs)
+  - [1. Install the font](#1-install-the-font)
+  - [2. Set your terminal emulator to use it](#2-set-your-terminal-emulator-to-use-it)
 
 ---
 
@@ -154,3 +157,42 @@ Only when `[font] install=true`. Provides `fc-cache` to refresh the font cache a
 ```
 sudo apt install fontconfig
 ```
+
+---
+
+## V. Nerd Font for Powerline glyphs
+
+The kit ships `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf` — a font that includes Powerline arrow glyphs (`` and friends) and other icons used by the ak zsh theme. Without a Nerd Font, Powerline arrows render as empty boxes ("tofu").
+
+Two steps to use it.
+
+### 1. Install the font
+
+Set the font in `configs/settings.conf`:
+
+```
+[font]
+name=JetBrainsMonoNerdFont-Regular
+install=true
+```
+
+Then run `./install.sh apply`. Termkit copies the `.ttf` into `~/.local/share/fonts/` and runs `fc-cache -f` (needs [fontconfig](#2-fontconfig)).
+
+### 2. Set your terminal emulator to use it
+
+Installing the font makes it available system-wide, but your terminal emulator picks its own font.
+
+For **GNOME Terminal**: Preferences → your Profile → Text → Custom font → **JetBrainsMonoNerdFont Regular**.
+
+For **Kitty**: add to `~/.config/kitty/kitty.conf`:
+```
+font_family JetBrainsMonoNerdFont-Regular
+```
+
+For **Alacritty**: add to `~/.config/alacritty/alacritty.toml`:
+```
+[font.normal]
+family = "JetBrainsMonoNerdFont-Regular"
+```
+
+> **Note:** Some terminals auto-fallback via fontconfig — installing the font may be enough for Powerline glyphs to render even without changing the profile font. Test by opening a new terminal and checking a prompt with an arrow.

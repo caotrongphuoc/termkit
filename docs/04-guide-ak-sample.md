@@ -24,6 +24,7 @@ Read [01-guide-setup.md](01-guide-setup.md) first — everything below assumes y
   - [1. Logo file](#1-logo-file)
   - [2. Aliases](#2-aliases)
   - [3. Fastfetch toggle](#3-fastfetch-toggle)
+  - [4. Fastfetch config file](#4-fastfetch-config-file)
 - [V. Fork ak into your own theme](#v-fork-ak-into-your-own-theme)
 
 ---
@@ -35,8 +36,9 @@ The **ak** preset is what a full termkit apply looks like when every option is t
 | Piece | Where it lives | What it does |
 |---|---|---|
 | **Theme** | `configs/themes/zsh/ak.zsh-theme` | An oh-my-zsh theme (a copy of `pixegami-agnoster`) that renders a two-line segmented prompt with git branch, dirty state, and status icons. |
+| **Nerd Font** | `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf` | Installed into `~/.local/share/fonts/` so the terminal can render Powerline arrows. |
 | **Logo** | `configs/logo/ak.txt` (or `ak-small.txt`) | An ASCII banner printed at the top of every new shell. |
-| **Fastfetch integration** | Set via `[logo] use_fastfetch=true` | Instead of `cat`, `fastfetch --logo` renders the logo alongside OS info (distro, kernel, uptime, packages, ...). |
+| **Fastfetch integration** | `[logo] use_fastfetch=true` + `[fastfetch] config=ak` | `fastfetch --logo` renders the logo alongside OS info, with the info list from `configs/fastfetch/ak.jsonc`. |
 | **Aliases** | `configs/aliases.sh` | Shell shortcuts: `ll`, `la`, `..`, `...`, `gs`. |
 
 End result: open a new terminal → fastfetch splash with the AK logo → the ak prompt with git awareness ready to go.
@@ -57,19 +59,24 @@ name=zsh
 name=ak
 
 [font]
-name=none
-install=false
+name=JetBrainsMonoNerdFont-Regular
+install=true
 
 [logo]
 enabled=true
 file=ak
 use_fastfetch=true
 
+[fastfetch]
+config=ak
+
 [aliases]
 enabled=true
 ```
 
-> **Note:** Values are basenames without extension. `theme.name=ak` matches `configs/themes/zsh/ak.zsh-theme`, `logo.file=ak` matches `configs/logo/ak.txt`. Use `ak-small` instead of `ak` if you want the smaller logo variant.
+> **Note:** Values are basenames without extension. `theme.name=ak` matches `configs/themes/zsh/ak.zsh-theme`, `logo.file=ak` matches `configs/logo/ak.txt`, `fastfetch.config=ak` matches `configs/fastfetch/ak.jsonc`. Use `ak-small` instead of `ak` in `logo.file` if you want the smaller logo variant.
+>
+> After apply, remember to point your terminal emulator at the newly installed font — see [01-guide-setup.md Section V.2](01-guide-setup.md#2-set-your-terminal-emulator-to-use-it).
 
 ### 2. Run apply
 
@@ -304,7 +311,18 @@ The `[logo] use_fastfetch` field decides how the logo is printed:
 
 If `use_fastfetch=true` but fastfetch is not installed at apply time, termkit prints a warning and falls back to `cat`. Install fastfetch (see [01-guide-setup.md](01-guide-setup.md)) then re-run `./install.sh apply` to flip the block to the fastfetch line.
 
-**To customize the fastfetch output** (which info lines show, colors, layout), edit `~/.config/fastfetch/config.jsonc`. That file lives outside termkit's scope — see [fastfetch docs](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration) for the format.
+### 4. Fastfetch config file
+
+The `[fastfetch] config=ak` field points at `configs/fastfetch/ak.jsonc`, which decides what info lines show up next to the logo — OS, host, kernel, uptime, packages, shell, terminal, font, and the second block with CPU, GPU, memory, disk, local IP.
+
+On apply, Termkit overwrites `~/.config/fastfetch/config.jsonc` with the shipped copy. On uninstall, it removes the file only if the content is still byte-for-byte identical to what was shipped — any hand-edit is preserved.
+
+**To customize the info lines** (add battery, remove GPU, change colors, ...), you have two options:
+
+- **Edit in the repo**: edit `configs/fastfetch/ak.jsonc`, then re-run `./install.sh apply` to sync the change to `~/.config/fastfetch/config.jsonc`. Uninstall still cleans up because the content stays identical between repo and system.
+- **Edit only on your machine**: set `[fastfetch] config=none` in `settings.conf`, then edit `~/.config/fastfetch/config.jsonc` directly. Termkit will not touch that file when config is `none`.
+
+See the [fastfetch config wiki](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration) for the JSONC schema.
 
 ---
 

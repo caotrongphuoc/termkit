@@ -35,11 +35,15 @@ enabled=false             # print the logo on shell start
 file=none                 # basename of a file in configs/logo/*.txt
 use_fastfetch=false       # print via `fastfetch --logo` (falls back to `cat` if missing)
 
+[fastfetch]
+config=none               # basename of a file in configs/fastfetch/*.jsonc, or 'none'
+                          # when set, apply overwrites ~/.config/fastfetch/config.jsonc
+
 [aliases]
 enabled=false             # source configs/aliases.sh on shell start
 ```
 
-> **Note:** Values for `theme.name`, `font.name`, and `logo.file` are basenames without extension — Termkit appends the right extension based on shell / file type.
+> **Note:** Values for `theme.name`, `font.name`, `logo.file`, and `fastfetch.config` are basenames without extension — Termkit appends the right extension based on shell / file type.
 
 ---
 
@@ -59,6 +63,7 @@ enabled=false             # source configs/aliases.sh on shell start
 
 - Re-running `apply` strips the old managed block and writes a new one — never stacks duplicates.
 - If `[font] install=true`, the `.ttf` is copied to `~/.local/share/fonts/` and `fc-cache -f` runs.
+- If `[fastfetch] config` is not `none`, `configs/fastfetch/<name>.jsonc` is copied to `~/.config/fastfetch/config.jsonc` (overwrite, no backup). On uninstall, the file is removed only if its content still matches a shipped `.jsonc` byte-for-byte — local edits are left alone.
 - Anything else in your shell rc is left alone.
 
 ---
