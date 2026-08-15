@@ -326,8 +326,11 @@ apply_zsh()
 uninstall_all()
 {
     local bashrc="$HOME/.bashrc"
-    local backup="$HOME/.bashrc.termkit.bak"
+    local zshrc="$HOME/.zshrc"
+    local backup_bash="$HOME/.bashrc.termkit.bak"
+    local backup_zsh="$HOME/.zshrc.termkit.bak"
     local fonts_dir="$HOME/.local/share/fonts"
+    local omz_themes="$HOME/.oh-my-zsh/custom/themes"
     local removed_any=0
 
     # Strip the managed block from ~/.bashrc if present.
@@ -335,22 +338,26 @@ uninstall_all()
         sed -i "\|^${BLOCK_START}\$|,\|^${BLOCK_END}\$|d" "$bashrc"
         echo "Removed termkit block from $bashrc"
         removed_any=1
-    else
-        echo "No termkit block found in $bashrc"
+    fi
+
+    # Strip the managed block from ~/.zshrc if present.
+    if [ -f "$zshrc" ] && grep -q "^${BLOCK_START}\$" "$zshrc" 2>/dev/null; then
+        sed -i "\|^${BLOCK_START}\$|,\|^${BLOCK_END}\$|d" "$zshrc"
+        echo "Removed termkit block from $zshrc"
+        removed_any=1
     fi
 
     # Remove any font under ~/.local/share/fonts whose basename matches
-    # a file we ship in configs/fonts. We do not touch fonts installed
-    # from elsewhere.
+    # a file we ship in configs/fonts. We do not touch fonts from elsewhere.
     if [ -d "$fonts_dir" ]; then
         local removed_font=0 name
-        local -a shipped=()
-        mapfile -t shipped < <(
+        local -a shipped_fonts=()
+        mapfile -t shipped_fonts < <(
             cd "$SCRIPT_DIR/configs/fonts" 2>/dev/null || exit
             shopt -s nullglob
             for f in *.ttf; do printf '%s\n' "$f"; done
         )
-        for name in "${shipped[@]}"; do
+        for name in "${shipped_fonts[@]}"; do
             if [ -f "$fonts_dir/$name" ]; then
                 rm -f "$fonts_dir/$name"
                 echo "Removed font: $fonts_dir/$name"
@@ -364,12 +371,29 @@ uninstall_all()
         fi
     fi
 
+    # Remove any oh-my-zsh custom theme whose basename matches a .zsh-theme
+    # we ship in configs/themes/zsh. Themes from elsewhere are left alone.
+    if [ -d "$omz_themes" ]; then
+        local name
+        local -a shipped_omz=()
+        mapfile -t shipped_omz < <(
+            cd "$SCRIPT_DIR/configs/themes/zsh" 2>/dev/null || exit
+            shopt -s nullglob
+            for f in *.zsh-theme; do printf '%s\n' "$f"; done
+        )
+        for name in "${shipped_omz[@]}"; do
+            if [ -f "$omz_themes/$name" ]; then
+                rm -f "$omz_themes/$name"
+                echo "Removed oh-my-zsh theme: $omz_themes/$name"
+                removed_any=1
+            fi
+        done
+    fi
+
     if [ "$removed_any" -eq 1 ]; then
         echo "Uninstall complete."
-        if [ -f "$backup" ]; then
-            echo "Original bashrc backup kept at: $backup"
-            echo "  restore with: cp \"$backup\" \"$bashrc\""
-        fi
+        [ -f "$backup_bash" ] && echo "  bashrc backup kept at: $backup_bash"
+        [ -f "$backup_zsh"  ] && echo "  zshrc backup kept at:  $backup_zsh"
     else
         echo "Nothing to uninstall."
     fi
