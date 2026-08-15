@@ -89,7 +89,7 @@ Then edit `~/.zshrc`. Find the line starting with `plugins=(` and add the plugin
 plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
 ```
 
-> **Note:** If your first `zsh` run prints `[oh-my-zsh] Insecure completion-dependent directories detected`, the cloned plugin folders picked up world-writable permissions (usually from an unusual umask). Fix with oh-my-zsh's own suggestion, then restart zsh:
+> **Note:** If zsh prints `[oh-my-zsh] Insecure completion-dependent directories detected`, the plugin folders (and possibly the completion cache) have group-writable permissions from your umask. Oh-my-zsh will keep printing this on every startup until you fix it. Run this command inside zsh — not bash, because `compaudit` is a zsh built-in — then open a new terminal (or `exec zsh`):
 >
 > ```
 > compaudit | xargs chmod g-w,o-w
