@@ -1,10 +1,33 @@
-# termkit
+<div align="center">
 
-Terminal setup kit for Linux. Ship a config, run one command. Bash and zsh.
+![Repo Traffic](https://komarev.com/ghpvc/?username=termkit&label=Repo+Traffic&color=blue&style=flat-square)
 
-## Quickstart
+</div>
 
-Install prerequisites for your target shell first — see [docs/setup.md](docs/setup.md).
+# termkit - Terminal Setup Kit for Linux
+
+<hr>
+
+## Documentation
+
+| File | Description |
+|---|---|
+| [README.md](README.md) | Project overview, layout, commands, and uninstall. |
+| [docs/01-guide-setup.md](docs/01-guide-setup.md) | Install prerequisites (bash, zsh, oh-my-zsh, plugins, fastfetch, fontconfig) for each target shell. |
+| [docs/02-guide-settings.md](docs/02-guide-settings.md) | `settings.conf` schema and what the `apply` command does to your shell rc. |
+| [docs/03-guide-extending.md](docs/03-guide-extending.md) | Add your own theme, font, or logo to the kit. |
+
+## Introduction
+
+termkit is a small toolkit for configuring Linux terminals — pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
+
+- **State file:** A single `configs/settings.conf` captures every choice you have made.
+- **Managed block:** Termkit only writes a fenced block into `~/.bashrc` or `~/.zshrc`; the rest of the file is untouched.
+- **Reversible:** Every apply is idempotent; a single `uninstall` command wipes the block and any files termkit installed.
+
+### I. How to Use
+
+Once prerequisites are installed (see [docs/01-guide-setup.md](docs/01-guide-setup.md)):
 
 ```
 git clone https://github.com/caotrongphuoc/termkit.git ~/termkit
@@ -17,17 +40,17 @@ Then open a new terminal, or `source ~/.bashrc` / `source ~/.zshrc`.
 
 To undo: `./install.sh uninstall`.
 
-## Commands
+### II. Commands
 
-```
-./install.sh apply       read settings.conf and apply to your shell rc
-./install.sh status      show current settings.conf values
-./install.sh clean       reset settings.conf to defaults (old file kept as .bak)
-./install.sh uninstall   remove termkit changes from both bash AND zsh
-./install.sh             print usage
-```
+| Command | What it does |
+|---|---|
+| `./install.sh apply` | Reads settings.conf and applies to your shell rc. |
+| `./install.sh status` | Prints current settings.conf values. |
+| `./install.sh clean` | Resets settings.conf to defaults (old file kept as `.bak`). |
+| `./install.sh uninstall` | Removes termkit changes from both `~/.bashrc` and `~/.zshrc`. |
+| `./install.sh` | Prints usage. |
 
-## Layout
+### III. Repo Layout
 
 ```
 termkit/
@@ -39,12 +62,12 @@ termkit/
 │   ├── logo/*.txt                 # printed on shell start when enabled
 │   └── aliases.sh                 # sourced when aliases are enabled
 └── docs/
-    ├── setup.md                   # prerequisites per shell (start here)
-    ├── settings.md                # settings.conf schema and apply behavior
-    └── extending.md               # add your own theme, font, or logo
+    ├── 01-guide-setup.md
+    ├── 02-guide-settings.md
+    └── 03-guide-extending.md
 ```
 
-## Uninstall
+### IV. Uninstall
 
 `./install.sh uninstall`:
 
@@ -58,3 +81,20 @@ Fonts and themes from other sources are left alone. Backups at `~/.bashrc.termki
 cp ~/.bashrc.termkit.bak ~/.bashrc
 cp ~/.zshrc.termkit.bak  ~/.zshrc
 ```
+
+## Contact & Support
+
+<p style="font-size: 20px;"><strong>Cao Trong Phuoc</strong> - Software Engineer - Embedded Systems</p>
+
+``` Note
+Thank you for visiting this repository.
+If you have any questions, suggestions, or feedback about this project or terminal customization, feel free to contact me directly.
+```
+
+<a href="https://github.com/caotrongphuoc">
+  <img src="https://img.shields.io/badge/GitHub-caotrongphuoc-181717?style=for-the-badge&logo=github&logoColor=white"/>
+</a>
+
+<a href="https://www.linkedin.com/in/cao-trong-phuoc/">
+  <img src="https://img.shields.io/badge/LinkedIn-Cao%20Trong%20Phuoc-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white"/>
+</a>

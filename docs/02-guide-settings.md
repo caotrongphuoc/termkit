@@ -1,6 +1,21 @@
-# Settings and apply behavior
+<h1 align="center">Settings and apply behavior</h1>
 
-## settings.conf schema
+This document describes the `configs/settings.conf` schema and what happens when `./install.sh apply` runs. Values are stored as `key=value` under `[sections]`; comments start with `#`.
+
+---
+
+## Table of Contents
+
+- [I. Schema](#i-schema)
+- [II. What apply does](#ii-what-apply-does)
+  - [1. shell=bash](#1-shellbash)
+  - [2. shell=zsh](#2-shellzsh)
+  - [3. Common to both](#3-common-to-both)
+- [III. Managed block markers](#iii-managed-block-markers)
+
+---
+
+## I. Schema
 
 ```
 [shell]
@@ -24,27 +39,33 @@ use_fastfetch=false       # print via `fastfetch --logo` (falls back to `cat` if
 enabled=false             # source configs/aliases.sh on shell start
 ```
 
-Values for `theme.name`, `font.name`, and `logo.file` are basenames without extension — termkit appends the right extension based on shell / file type.
+> **Note:** Values for `theme.name`, `font.name`, and `logo.file` are basenames without extension — termkit appends the right extension based on shell / file type.
 
-## What apply does
+---
 
-### shell=bash
+## II. What apply does
+
+### 1. shell=bash
 
 - Backs up `~/.bashrc` to `~/.bashrc.termkit.bak` on the first run.
 - Appends a managed block that sources the theme, prints the logo, and sources aliases.
 
-### shell=zsh
+### 2. shell=zsh
 
-- Same, but writes to `~/.zshrc` and `~/.zshrc.termkit.bak`.
+- Same as bash, but writes to `~/.zshrc` and `~/.zshrc.termkit.bak`.
 - If the theme is a `.zsh-theme` file, copies it to `~/.oh-my-zsh/custom/themes/<name>.zsh-theme` and reminds you to set `ZSH_THEME=<name>` yourself. Standalone `.zsh` themes are sourced from the managed block directly.
 
-### Common to both
+### 3. Common to both
 
 - Re-running `apply` strips the old managed block and writes a new one — never stacks duplicates.
 - If `[font] install=true`, the `.ttf` is copied to `~/.local/share/fonts/` and `fc-cache -f` runs.
 - Anything else in your shell rc is left alone.
 
-## Managed block markers
+---
+
+## III. Managed block markers
+
+Termkit only writes between these two lines. Anything above `# >>> termkit start >>>` and below `# <<< termkit end <<<` is your own.
 
 ```
 # >>> termkit start >>>

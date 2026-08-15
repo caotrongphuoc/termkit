@@ -1,33 +1,57 @@
-# Setup
+<h1 align="center">Setup guide</h1>
 
-Install what your chosen shell needs BEFORE cloning termkit. Skip sections that do not apply.
+Install the tools termkit needs on your machine BEFORE cloning the repo. This document lists exactly what to install for each supported shell, plus optional extras.
 
-## Base tools (always required)
+---
+
+## Table of Contents
+
+- [I. Base tools (always required)](#i-base-tools-always-required)
+- [II. Bash path](#ii-bash-path)
+- [III. Zsh path](#iii-zsh-path)
+  - [1. Install zsh](#1-install-zsh)
+  - [2. Install oh-my-zsh](#2-install-oh-my-zsh)
+  - [3. Install zsh plugins (per-theme optional)](#3-install-zsh-plugins-per-theme-optional)
+  - [4. Make zsh your default shell (optional)](#4-make-zsh-your-default-shell-optional)
+- [IV. Optional extras](#iv-optional-extras)
+  - [1. fastfetch](#1-fastfetch)
+  - [2. fontconfig](#2-fontconfig)
+
+---
+
+## I. Base tools (always required)
 
 Most Linux distros ship these. On a minimal system:
 
 Debian / Ubuntu:
+
 ```
 sudo apt install bash coreutils gawk sed git
 ```
 
 Fedora:
+
 ```
 sudo dnf install bash coreutils gawk sed git
 ```
 
 Arch:
+
 ```
 sudo pacman -S bash coreutils gawk sed git
 ```
 
-Termkit uses GNU `sed -i`, so Linux only — not macOS or BSD.
+> **Note:** Termkit uses GNU `sed -i`. Linux only — not macOS or BSD.
 
-## Bash path
+---
+
+## II. Bash path
 
 If `[shell] name=bash`, nothing extra is needed. The base tools above are enough.
 
-## Zsh path
+---
+
+## III. Zsh path
 
 Setup for `[shell] name=zsh` has four sub-steps. Only steps 1 and 2 are always required; step 3 depends on the theme you pick, step 4 is convenience.
 
@@ -73,9 +97,11 @@ Log out and back in after running:
 chsh -s "$(which zsh)"
 ```
 
-## Optional extras
+---
 
-### fastfetch
+## IV. Optional extras
+
+### 1. fastfetch
 
 Only when `[logo] use_fastfetch=true`. Prints the logo alongside OS info instead of plain `cat`.
 
@@ -83,7 +109,7 @@ Only when `[logo] use_fastfetch=true`. Prints the logo alongside OS info instead
 sudo apt install fastfetch
 ```
 
-### fontconfig
+### 2. fontconfig
 
 Only when `[font] install=true`. Provides `fc-cache` to refresh the font cache after termkit copies fonts into `~/.local/share/fonts/`.
 

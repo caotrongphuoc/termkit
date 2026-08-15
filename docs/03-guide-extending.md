@@ -1,6 +1,23 @@
-# Adding your own theme, font, or logo
+<h1 align="center">Extending termkit</h1>
 
-## Bash theme
+Add your own theme, font, or logo to the kit. Everything lives under `configs/`; drop a file in the right folder and point `settings.conf` at it.
+
+---
+
+## Table of Contents
+
+- [I. Themes](#i-themes)
+  - [1. Bash theme](#1-bash-theme)
+  - [2. Zsh standalone theme](#2-zsh-standalone-theme)
+  - [3. Zsh oh-my-zsh theme](#3-zsh-oh-my-zsh-theme)
+- [II. Font](#ii-font)
+- [III. Logo](#iii-logo)
+
+---
+
+## I. Themes
+
+### 1. Bash theme
 
 Drop `mytheme.bash` into `configs/themes/bash/`. Inside, set `PS1`, `LS_COLORS`, or anything else you want each new shell to run.
 
@@ -14,7 +31,7 @@ name=bash
 name=mytheme
 ```
 
-## Zsh standalone theme
+### 2. Zsh standalone theme
 
 Drop `mytheme.zsh` into `configs/themes/zsh/`. Inside, set `PROMPT`, `autoload -Uz vcs_info`, etc. Requires only zsh — no oh-my-zsh.
 
@@ -26,13 +43,15 @@ name=zsh
 name=mytheme
 ```
 
-## Zsh oh-my-zsh theme
+### 3. Zsh oh-my-zsh theme
 
 Drop `mytheme.zsh-theme` into `configs/themes/zsh/`. Requires oh-my-zsh at `~/.oh-my-zsh/`.
 
 Termkit copies the file to `~/.oh-my-zsh/custom/themes/` on apply. You then set `ZSH_THEME="mytheme"` manually in `~/.zshrc`, BEFORE the `source $ZSH/oh-my-zsh.sh` line.
 
-## Font
+---
+
+## II. Font
 
 Drop `MyFont.ttf` into `configs/fonts/`.
 
@@ -42,7 +61,11 @@ name=MyFont
 install=true
 ```
 
-## Logo
+On apply, termkit copies the file into `~/.local/share/fonts/` and refreshes the cache with `fc-cache -f`.
+
+---
+
+## III. Logo
 
 Drop `mylogo.txt` into `configs/logo/`.
 
@@ -50,5 +73,5 @@ Drop `mylogo.txt` into `configs/logo/`.
 [logo]
 enabled=true
 file=mylogo
-use_fastfetch=false       # or true if you want fastfetch to render it
+use_fastfetch=false       # or true to render with fastfetch instead of cat
 ```
