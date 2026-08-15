@@ -4,7 +4,7 @@
 
 </div>
 
-# termkit - Terminal Setup Kit for Linux
+# Termkit - Terminal Setup Kit for Linux
 
 <hr>
 
