@@ -48,7 +48,7 @@ name=mytheme
 
 Drop `mytheme.zsh-theme` into `configs/themes/zsh/`. Requires oh-my-zsh at `~/.oh-my-zsh/`.
 
-On apply, Termkit copies the file to `~/.oh-my-zsh/custom/themes/`. You then set `ZSH_THEME="mytheme"` manually in `~/.zshrc`, BEFORE the `source $ZSH/oh-my-zsh.sh` line.
+On apply, Termkit copies the file to `~/.oh-my-zsh/custom/themes/` and auto-patches `ZSH_THEME="mytheme"` in `~/.zshrc` (replaces the existing `ZSH_THEME=` line, or inserts one before the `source $ZSH/oh-my-zsh.sh` line).
 
 ---
 

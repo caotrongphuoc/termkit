@@ -12,8 +12,7 @@ Read [01-guide-setup.md](01-guide-setup.md) first — everything below assumes y
 - [II. Apply the preset](#ii-apply-the-preset)
   - [1. Configure settings.conf](#1-configure-settingsconf)
   - [2. Run apply](#2-run-apply)
-  - [3. Set ZSH_THEME in ~/.zshrc](#3-set-zsh_theme-in-zshrc)
-  - [4. Reload zsh](#4-reload-zsh)
+  - [3. Reload zsh](#3-reload-zsh)
 - [III. Anatomy of ak.zsh-theme](#iii-anatomy-of-akzsh-theme)
   - [1. Powerline segment separator](#1-powerline-segment-separator)
   - [2. Segment helpers — prompt_segment and prompt_end](#2-segment-helpers--prompt_segment-and-prompt_end)
@@ -84,23 +83,21 @@ enabled=true
 ./install.sh apply
 ```
 
-Termkit copies `ak.zsh-theme` into `~/.oh-my-zsh/custom/themes/` and appends a managed block to `~/.zshrc` that runs fastfetch and sources aliases. It also prints a reminder about the next step:
+Termkit does three things:
+
+- Copies `ak.zsh-theme` into `~/.oh-my-zsh/custom/themes/`.
+- Auto-patches `ZSH_THEME="ak"` in `~/.zshrc` (replaces the existing line, or inserts one before the `source $ZSH/oh-my-zsh.sh` line).
+- Appends a managed block at the end of `~/.zshrc` that runs fastfetch and sources aliases.
+
+You should see output like:
 
 ```
-NOTE: edit ~/.zshrc and set ZSH_THEME="ak" BEFORE the oh-my-zsh source line.
+Installed oh-my-zsh theme: ~/.oh-my-zsh/custom/themes/ak.zsh-theme
+Updated ZSH_THEME to "ak" in ~/.zshrc
+Applied. Open a new terminal to see changes.
 ```
 
-### 3. Set ZSH_THEME in ~/.zshrc
-
-Open `~/.zshrc`, find the line starting with `ZSH_THEME=` (usually near the top), and set it to `ak`:
-
-```
-ZSH_THEME="ak"
-```
-
-This must be set BEFORE the line that reads `source $ZSH/oh-my-zsh.sh`. Termkit's managed block sits at the END of the file, so it cannot set `ZSH_THEME` for you.
-
-### 4. Reload zsh
+### 3. Reload zsh
 
 In the current terminal:
 
@@ -359,7 +356,7 @@ name=mytheme
 ./install.sh apply
 ```
 
-Then edit `~/.zshrc` and set `ZSH_THEME="mytheme"` (same manual step as the ak preset). Reload with `exec zsh` or open a new terminal.
+Termkit patches `ZSH_THEME="mytheme"` in `~/.zshrc` for you. Reload with `exec zsh` or open a new terminal.
 
 ### 5. Iterate
 

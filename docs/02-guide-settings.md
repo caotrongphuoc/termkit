@@ -57,7 +57,7 @@ enabled=false             # source configs/aliases.sh on shell start
 ### 2. shell=zsh
 
 - Same as bash, but writes to `~/.zshrc` and `~/.zshrc.termkit.bak`.
-- If the theme is a `.zsh-theme` file, copies it to `~/.oh-my-zsh/custom/themes/<name>.zsh-theme` and reminds you to set `ZSH_THEME=<name>` yourself. Standalone `.zsh` themes are sourced from the managed block directly.
+- If the theme is a `.zsh-theme` file, copies it to `~/.oh-my-zsh/custom/themes/<name>.zsh-theme` **and auto-patches `ZSH_THEME="<name>"` in `~/.zshrc`** (replaces the existing `ZSH_THEME=` line, or inserts one before the `source $ZSH/oh-my-zsh.sh` line). Standalone `.zsh` themes are sourced from the managed block directly.
 
 ### 3. Common to both
 
