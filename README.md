@@ -2,12 +2,76 @@
 
 Terminal setup kit for Linux. Ship a config, run one command. Bash and zsh.
 
+## Setup
+
+Install what your chosen shell needs BEFORE cloning termkit. Skip sections that do not apply.
+
+### Base tools (always required)
+
+Most Linux distros ship these. On a minimal system:
+
+```
+sudo apt install bash coreutils gawk sed git   # Debian/Ubuntu
+sudo dnf install bash coreutils gawk sed git   # Fedora
+sudo pacman -S bash coreutils gawk sed git     # Arch
+```
+
+Termkit uses GNU `sed -i`, so Linux only (not macOS).
+
+### If `[shell] name=bash`
+
+Nothing extra to install. Bash and the base tools above are enough.
+
+### If `[shell] name=zsh`
+
+Full setup for the ak zsh theme (which uses oh-my-zsh + a few plugins):
+
+```
+# 1) zsh
+sudo apt install zsh
+
+# 2) oh-my-zsh (unattended — will not change your login shell yet)
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# 3) plugins used by the shipped setup
+git clone https://github.com/zsh-users/zsh-syntax-highlighting \
+  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-autosuggestions \
+  ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+# 4) enable plugins — edit ~/.zshrc, find the `plugins=(...)` line, replace with:
+#    plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
+
+# 5) (optional) make zsh your default login shell; log out/in to take effect
+chsh -s "$(which zsh)"
+```
+
+If you are writing your own zsh theme instead of `.zsh-theme`, oh-my-zsh is not required — see [Adding your own theme](#adding-your-own-theme-font-or-logo).
+
+### Optional extras
+
+- **fastfetch** — only when `[logo] use_fastfetch=true` (prints the logo with OS info instead of plain `cat`).
+  ```
+  sudo apt install fastfetch
+  ```
+- **fontconfig** — only when `[font] install=true` (provides `fc-cache`).
+  ```
+  sudo apt install fontconfig
+  ```
+
 ## Quickstart
 
-1. Clone this repo somewhere you plan to keep it (paths written to your shell rc are absolute).
+Once Setup above is done:
+
+1. Clone the repo somewhere you plan to keep it (paths written to your shell rc are absolute):
+   ```
+   git clone https://github.com/caotrongphuoc/termkit.git ~/termkit
+   cd ~/termkit
+   ```
 2. Open `configs/settings.conf` and change what you want. Start with `[shell] name=bash` or `zsh`.
 3. Run `./install.sh apply`.
-4. Open a new terminal, or `source ~/.bashrc` / `source ~/.zshrc` in the current one.
+4. For zsh with a `.zsh-theme`: apply prints a reminder — edit `~/.zshrc` and set `ZSH_THEME="<name>"` BEFORE the `source $ZSH/oh-my-zsh.sh` line.
+5. Open a new terminal, or `source ~/.bashrc` / `source ~/.zshrc` in the current one.
 
 To undo: `./install.sh uninstall`.
 
@@ -45,7 +109,7 @@ termkit/
 name=bash                 # bash or zsh
 
 [theme]
-name=default              # basename of a file in configs/themes/<shell>/
+name=default              # basename of a file in configs/themes/<shell>/ (no extension)
                           # for bash: matches <name>.bash
                           # for zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
 
@@ -62,26 +126,7 @@ use_fastfetch=false       # print via `fastfetch --logo` (falls back to `cat` if
 enabled=false             # source configs/aliases.sh on shell start
 ```
 
-## Prerequisites
-
-Always required:
-- `bash`, `awk`, `sed`, `mktemp`, `cp`, `mv`
-- Linux (uses GNU `sed -i`)
-
-Optional:
-- `fc-cache` — only needed when `[font] install=true`
-- `fastfetch` — only needed when `[logo] use_fastfetch=true`
-
-For `[shell] name=zsh`:
-- `zsh` installed
-- `oh-my-zsh` if using a `.zsh-theme` file. Install once, then re-run `./install.sh apply` — the theme is copied into `~/.oh-my-zsh/custom/themes/`. You must set `ZSH_THEME="<name>"` in `~/.zshrc` **before** the oh-my-zsh source line (termkit does not touch that line — its managed block sits at the end of the file).
-
-Install hints (Debian/Ubuntu):
-
-```
-sudo apt install zsh fastfetch fontconfig
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-```
+Values for `theme.name`, `font.name`, and `logo.file` are **basenames without extension** — termkit appends the right extension based on shell / file type.
 
 ## What apply does
 
