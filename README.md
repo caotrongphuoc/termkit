@@ -16,6 +16,7 @@
 | [docs/01-guide-setup.md](docs/01-guide-setup.md) | Install prerequisites (bash, zsh, oh-my-zsh, plugins, fastfetch, fontconfig) for each target shell. |
 | [docs/02-guide-settings.md](docs/02-guide-settings.md) | `settings.conf` schema and what the `apply` command does to your shell rc. |
 | [docs/03-guide-extending.md](docs/03-guide-extending.md) | Add your own theme, font, or logo to the kit. |
+| [docs/04-guide-ak-sample.md](docs/04-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
 
 ## Introduction
 
@@ -67,7 +68,8 @@ termkit/
 └── docs/
     ├── 01-guide-setup.md
     ├── 02-guide-settings.md
-    └── 03-guide-extending.md
+    ├── 03-guide-extending.md
+    └── 04-guide-ak-sample.md
 ```
 
 ### IV. Uninstall

@@ -20,8 +20,11 @@ Read [01-guide-setup.md](01-guide-setup.md) first — everything below assumes y
   - [3. Content segments](#3-content-segments)
   - [4. Composition — build_prompt](#4-composition--build_prompt)
   - [5. The PROMPT line](#5-the-prompt-line)
-- [IV. Extras — logo, aliases, fastfetch](#iv-extras--logo-aliases-fastfetch) *(next part)*
-- [V. Fork ak into your own theme](#v-fork-ak-into-your-own-theme) *(next part)*
+- [IV. Extras — logo, aliases, fastfetch](#iv-extras--logo-aliases-fastfetch)
+  - [1. Logo file](#1-logo-file)
+  - [2. Aliases](#2-aliases)
+  - [3. Fastfetch toggle](#3-fastfetch-toggle)
+- [V. Fork ak into your own theme](#v-fork-ak-into-your-own-theme)
 
 ---
 
@@ -260,3 +263,90 @@ PROMPT='%{%f%b%k%}$(build_prompt) '
 - The trailing space is where the cursor sits after the prompt is drawn.
 
 Rarely a reason to edit this line — customize inside `build_prompt` instead.
+
+---
+
+## IV. Extras — logo, aliases, fastfetch
+
+### 1. Logo file
+
+`configs/logo/ak.txt` and `configs/logo/ak-small.txt` are plain text — no code, no escape sequences (unless you add ANSI colors yourself). Box-drawing characters, ASCII art, unicode — anything that displays in a terminal works.
+
+`ak.txt` is the full-size banner (~30 lines). `ak-small.txt` is a compact version for narrow terminals. Pick which one with `[logo] file=ak` or `[logo] file=ak-small` in `settings.conf`.
+
+**To customize:**
+- Edit the file directly with any text editor.
+- Generate ASCII art from an image with tools like [`jp2a`](https://github.com/Talinx/jp2a) or [`ascii-image-converter`](https://github.com/TheZoraiz/ascii-image-converter).
+- Keep the width in check — fastfetch prints info on the right, so a very wide logo pushes the info off-screen.
+
+### 2. Aliases
+
+`configs/aliases.sh` is sourced by both bash and zsh when `[aliases] enabled=true`. The syntax `alias name='command'` is identical in both shells.
+
+The default set: `ll`, `la`, `..`, `...`, `gs`. Add more by appending lines:
+
+```
+alias k='kubectl'
+alias dc='docker compose'
+alias serve='python3 -m http.server'
+```
+
+Aliases are sourced from the same path every shell start, so a new terminal picks up changes without re-running `./install.sh apply`. Apply is only needed to toggle `enabled` on or off.
+
+### 3. Fastfetch toggle
+
+The `[logo] use_fastfetch` field decides how the logo is printed:
+
+| Value | Command in managed block | Output |
+|---|---|---|
+| `false` (default) | `cat "<logo>"` | Just the ASCII art. |
+| `true` | `fastfetch --logo "<logo>"` | The ASCII art on the left, OS / kernel / uptime / packages / etc. on the right. |
+
+If `use_fastfetch=true` but fastfetch is not installed at apply time, termkit prints a warning and falls back to `cat`. Install fastfetch (see [01-guide-setup.md](01-guide-setup.md)) then re-run `./install.sh apply` to flip the block to the fastfetch line.
+
+**To customize the fastfetch output** (which info lines show, colors, layout), edit `~/.config/fastfetch/config.jsonc`. That file lives outside termkit's scope — see [fastfetch docs](https://github.com/fastfetch-cli/fastfetch/wiki/Configuration) for the format.
+
+---
+
+## V. Fork ak into your own theme
+
+The ak theme is meant to be forked. Here is the loop for building your own on top of it.
+
+### 1. Copy the file
+
+```
+cp configs/themes/zsh/ak.zsh-theme configs/themes/zsh/mytheme.zsh-theme
+```
+
+Edit the header attribution to note it is your fork (keep the upstream credits — they are required by the license).
+
+### 2. Tweak content
+
+Open `configs/themes/zsh/mytheme.zsh-theme` and change whatever you want — see [Section III](#iii-anatomy-of-akzsh-theme) for what each function does. Common starter tweaks:
+
+- Swap the segment colors in `prompt_context` and `prompt_git`.
+- Comment out `prompt_bzr` and `prompt_hg` in `build_prompt`.
+- Add a timestamp segment before `prompt_head`.
+
+### 3. Point termkit at it
+
+```
+[theme]
+name=mytheme
+```
+
+### 4. Apply and reload
+
+```
+./install.sh apply
+```
+
+Then edit `~/.zshrc` and set `ZSH_THEME="mytheme"` (same manual step as the ak preset). Reload with `exec zsh` or open a new terminal.
+
+### 5. Iterate
+
+Any further edit to `mytheme.zsh-theme` needs an `./install.sh apply` to re-copy the file into `~/.oh-my-zsh/custom/themes/`, then a new zsh shell (or `omz reload`) to see the change.
+
+---
+
+The same pattern works for a bash theme: `cp configs/themes/bash/ak.bash configs/themes/bash/mytheme.bash`, edit, set `[shell] name=bash` and `[theme] name=mytheme`, apply, open a new terminal.
