@@ -84,6 +84,11 @@ load_settings()
     if [ -z "$logo_fastfetch" ]; then
         logo_fastfetch="false"
     fi
+    fastfetch_config=$(conf_get fastfetch config)
+    # Default to none when the section is missing (backward compat with pre-v0.3 files).
+    if [ -z "$fastfetch_config" ]; then
+        fastfetch_config="none"
+    fi
     aliases_enabled=$(conf_get aliases enabled)
 }
 
@@ -99,6 +104,7 @@ show_status()
     echo " theme         : $theme_name"
     echo " font          : $font_name  (install: $font_install)"
     echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
+    echo " fastfetch cfg : $fastfetch_config"
     echo " aliases       : $aliases_enabled"
 }
 
@@ -137,6 +143,11 @@ enabled=false
 file=none
 # use_fastfetch: true = print via `fastfetch --logo` (falls back to `cat` if missing)
 use_fastfetch=false
+
+[fastfetch]
+# config: basename of a file in configs/fastfetch/*.jsonc, or 'none'
+#         When set, apply overwrites ~/.config/fastfetch/config.jsonc with it.
+config=none
 
 [aliases]
 # enabled: true = source configs/aliases.sh on shell start
