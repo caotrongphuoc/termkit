@@ -226,23 +226,7 @@ apply_bash()
         fi
     fi
 
-    # Install the font if requested. Safe to re-run.
-    if [ "$font_install" = "true" ] && [ "$font_name" != "none" ]; then
-        local font_path="$SCRIPT_DIR/configs/fonts/$font_name.ttf"
-        if [ ! -f "$font_path" ]; then
-            echo "font file not found: $font_path"
-            exit 1
-        fi
-        mkdir -p "$HOME/.local/share/fonts"
-        cp -f "$font_path" "$HOME/.local/share/fonts/"
-        echo "Installed font: $font_name.ttf"
-        if command -v fc-cache >/dev/null 2>&1; then
-            fc-cache -f >/dev/null 2>&1
-            echo "Refreshed font cache"
-        else
-            echo "fc-cache not found, skipping cache refresh"
-        fi
-    fi
+    _install_font
 
     _apply_fastfetch_config
 
@@ -407,23 +391,7 @@ apply_zsh()
         fi
     fi
 
-    # Install the font if requested (same mechanism as bash).
-    if [ "$font_install" = "true" ] && [ "$font_name" != "none" ]; then
-        local font_path="$SCRIPT_DIR/configs/fonts/$font_name.ttf"
-        if [ ! -f "$font_path" ]; then
-            echo "font file not found: $font_path"
-            exit 1
-        fi
-        mkdir -p "$HOME/.local/share/fonts"
-        cp -f "$font_path" "$HOME/.local/share/fonts/"
-        echo "Installed font: $font_name.ttf"
-        if command -v fc-cache >/dev/null 2>&1; then
-            fc-cache -f >/dev/null 2>&1
-            echo "Refreshed font cache"
-        else
-            echo "fc-cache not found, skipping cache refresh"
-        fi
-    fi
+    _install_font
 
     # For oh-my-zsh themes: copy into custom themes and patch ZSH_THEME in
     # ~/.zshrc automatically (it must be set BEFORE 'source $ZSH/oh-my-zsh.sh',
