@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # termkit installer.
-# Reads configs/settings.conf and applies terminal customization to bash.
+# Reads configs/settings.conf and applies terminal customization to bash or zsh.
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
@@ -563,8 +563,8 @@ case "$1" in
         ;;
     *)
         echo "Usage:"
-        echo " $0 apply     : read settings.conf and apply to ~/.bashrc"
-        echo " $0 uninstall : remove termkit changes from ~/.bashrc"
+        echo " $0 apply     : read settings.conf and apply to your shell rc"
+        echo " $0 uninstall : remove termkit changes from ~/.bashrc and ~/.zshrc"
         echo " $0 status    : show current settings.conf values"
         echo " $0 clean     : reset settings.conf to defaults (backup kept)"
         ;;
