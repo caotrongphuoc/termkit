@@ -2,7 +2,7 @@
 
 The kit ships with a working preset called **ak**: a two-line agnoster-style zsh prompt, an ASCII logo rendered via fastfetch, and a set of shell aliases. This document walks through how to apply it end-to-end, then breaks the theme file open piece by piece so you can build your own on top of it.
 
-Read [01-guide-setup.md](01-guide-setup.md) first — everything below assumes you have zsh + oh-my-zsh + fastfetch installed.
+Read [00-guide-setup.md](00-guide-setup.md) first — everything below assumes you have zsh + oh-my-zsh + fastfetch installed.
 
 ---
 
@@ -78,7 +78,7 @@ enabled=true
 
 > **Note:** Values are basenames without extension. `theme.name=ak` matches `configs/themes/zsh/ak.zsh-theme`, `logo.file=ak` matches `configs/logo/ak.txt`, `fastfetch.config=ak` matches `configs/fastfetch/ak.jsonc`. Use `ak-small` instead of `ak` in `logo.file` if you want the smaller logo variant.
 >
-> After apply, remember to point your terminal emulator at the newly installed font — see [01-guide-setup.md Section V.2](01-guide-setup.md#2-set-your-terminal-emulator-to-use-it).
+> After apply, remember to point your terminal emulator at the newly installed font — see [00-guide-setup.md Section V.2](00-guide-setup.md#2-set-your-terminal-emulator-to-use-it).
 
 ### 2. Run apply
 
@@ -310,7 +310,7 @@ The `[logo] use_fastfetch` field decides how the logo is printed:
 | `false` (default) | `cat "<logo>"` | Just the ASCII art. |
 | `true` | `fastfetch --logo "<logo>"` | The ASCII art on the left, OS / kernel / uptime / packages / etc. on the right. |
 
-If `use_fastfetch=true` but fastfetch is not installed at apply time, termkit prints a warning and falls back to `cat`. Install fastfetch (see [01-guide-setup.md](01-guide-setup.md)) then re-run `./install.sh apply` to flip the block to the fastfetch line.
+If `use_fastfetch=true` but fastfetch is not installed at apply time, termkit prints a warning and falls back to `cat`. Install fastfetch (see [00-guide-setup.md](00-guide-setup.md)) then re-run `./install.sh apply` to flip the block to the fastfetch line.
 
 ### 4. Fastfetch config file
 

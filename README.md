@@ -16,12 +16,12 @@
 | File | Description |
 |---|---|
 | [README.md](README.md) | Project overview, layout, commands, and uninstall. |
-| [docs/01-guide-setup.md](docs/01-guide-setup.md) | Install prerequisites (bash, zsh, oh-my-zsh, plugins, fastfetch, fontconfig) for each target shell. |
-| [docs/02-guide-settings.md](docs/02-guide-settings.md) | `settings.conf` schema and what the `apply` command does to your shell rc. |
-| [docs/03-guide-extending.md](docs/03-guide-extending.md) | Add your own theme, font, or logo to the kit. |
-| [docs/04-guide-ak-sample.md](docs/04-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
+| [docs/00-guide-setup.md](docs/00-guide-setup.md) | Install prerequisites (bash, zsh, oh-my-zsh, plugins, fastfetch, fontconfig) for each target shell. |
+| [docs/01-guide-settings.md](docs/01-guide-settings.md) | `settings.conf` schema and what the `apply` command does to your shell rc. |
+| [docs/02-guide-extending.md](docs/02-guide-extending.md) | Add your own theme, font, or logo to the kit. |
+| [docs/03-guide-ak-sample.md](docs/03-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
 
-New here? Read the docs in order — **01** installs prereqs, **02** explains the schema, **03** shows how to add your own, **04** walks through the shipped preset piece by piece.
+New here? Read the docs in order — **00** installs prereqs, **01** explains the schema, **02** shows how to add your own, **03** walks through the shipped preset piece by piece.
 
 ## Introduction
 
@@ -33,7 +33,7 @@ Termkit is a small toolkit for configuring Linux terminals — pick a theme, pro
 
 ### I. How to Use
 
-Once prerequisites are installed (see [docs/01-guide-setup.md](docs/01-guide-setup.md)):
+Once prerequisites are installed (see [docs/00-guide-setup.md](docs/00-guide-setup.md)):
 
 ```
 git clone https://github.com/caotrongphuoc/termkit.git ~/termkit
@@ -44,7 +44,7 @@ nano configs/settings.conf     # or your editor — pick shell, theme, logo, ali
 
 Then open a new terminal to see changes. To undo: `./install.sh uninstall`.
 
-For a ready-to-paste preset, see [docs/04-guide-ak-sample.md](docs/04-guide-ak-sample.md).
+For a ready-to-paste preset, see [docs/03-guide-ak-sample.md](docs/03-guide-ak-sample.md).
 
 ### II. Commands
 
@@ -69,10 +69,10 @@ termkit/
 │   ├── fastfetch/*.jsonc          # copied to ~/.config/fastfetch/config.jsonc when set
 │   └── aliases.sh                 # sourced when aliases are enabled
 └── docs/
-    ├── 01-guide-setup.md
-    ├── 02-guide-settings.md
-    ├── 03-guide-extending.md
-    └── 04-guide-ak-sample.md
+    ├── 00-guide-setup.md
+    ├── 01-guide-settings.md
+    ├── 02-guide-extending.md
+    └── 03-guide-ak-sample.md
 ```
 
 ### IV. Uninstall
