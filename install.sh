@@ -92,6 +92,9 @@ load_settings()
     if [ -z "$fastfetch_config" ]; then
         fastfetch_config="none"
     fi
+    terminal_emulator=$(conf_get terminal emulator)
+    [ -z "$terminal_emulator" ] && terminal_emulator="none"
+    terminal_font=$(conf_get terminal font)
     aliases_enabled=$(conf_get aliases enabled)
 }
 
@@ -111,6 +114,7 @@ show_status()
     echo " font          : $font_name  (install: $font_install)"
     echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
     echo " fastfetch cfg : $fastfetch_config"
+    echo " terminal      : $terminal_emulator  (font: ${terminal_font:-none})"
     echo " aliases       : $aliases_enabled"
 }
 
@@ -162,6 +166,16 @@ use_fastfetch=false
 #         When set, apply overwrites ~/.config/fastfetch/config.jsonc with it.
 config=none
 
+[terminal]
+# emulator: gnome-terminal | none
+#           When gnome-terminal + font non-empty, apply sets the font on
+#           the default GNOME Terminal profile via `gsettings`.
+#           For kitty/alacritty/wezterm/etc., set the font in that
+#           emulator's own config file manually.
+emulator=none
+# font: full name + size, e.g. 'JetBrainsMonoNerdFont-Regular 12'
+font=
+
 [aliases]
 # enabled: true = source configs/aliases.sh on shell start
 enabled=false
@@ -183,6 +197,7 @@ apply_all()
             exit 1
             ;;
     esac
+    _apply_terminal_font
 }
 
 apply_bash()
@@ -270,6 +285,37 @@ apply_bash()
     } >> "$bashrc"
 
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
+}
+
+# _apply_terminal_font
+# Sets the font on the default GNOME Terminal profile via gsettings.
+# Skips (with a note) for any other emulator or when gsettings is missing.
+_apply_terminal_font()
+{
+    [ "$terminal_emulator" = "none" ] && return
+    [ -z "$terminal_font" ] && return
+
+    if [ "$terminal_emulator" != "gnome-terminal" ]; then
+        echo "terminal font: emulator '$terminal_emulator' not supported. Set the font in that emulator's own config."
+        return
+    fi
+
+    if ! command -v gsettings >/dev/null 2>&1; then
+        echo "terminal font: gsettings not found; skipping GNOME Terminal font set."
+        return
+    fi
+
+    local uuid
+    uuid=$(gsettings get org.gnome.Terminal.ProfilesList default 2>/dev/null | tr -d "'")
+    if [ -z "$uuid" ]; then
+        echo "terminal font: could not read default GNOME Terminal profile."
+        return
+    fi
+
+    local path="org.gnome.Terminal.Legacy.Profile:/org/gnome/terminal/legacy/profiles:/:$uuid/"
+    gsettings set "$path" font "$terminal_font" 2>/dev/null
+    gsettings set "$path" use-system-font false 2>/dev/null
+    echo "Set GNOME Terminal font to '$terminal_font' on profile $uuid"
 }
 
 # _patch_zshrc_line <new_line> <match_regex> <label>
