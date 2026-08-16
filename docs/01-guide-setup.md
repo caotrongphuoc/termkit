@@ -103,7 +103,7 @@ Then enable the plugins. Two options:
   plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
   ```
 
-> **Note:** If zsh prints `[oh-my-zsh] Insecure completion-dependent directories detected`, the plugin folders (and possibly the completion cache) have group-writable permissions from your umask. Oh-my-zsh will keep printing this on every startup until you fix it. Run this command inside zsh — not bash, because `compaudit` is a zsh built-in — then open a new terminal (or `exec zsh`):
+> **Note:** `./install.sh apply` automatically tightens the oh-my-zsh directory perms that trigger the `[oh-my-zsh] Insecure completion-dependent directories detected` warning, so you should not see it in normal usage. If you install plugins manually AFTER apply and hit the warning, either re-run `./install.sh apply` or fix by hand inside zsh:
 >
 > ```
 > compaudit | xargs chmod g-w,o-w

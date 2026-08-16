@@ -267,6 +267,31 @@ _install_font()
     fi
 }
 
+# _fix_omz_perms
+# Tightens permissions on the oh-my-zsh directories that compaudit checks so
+# it stops printing the "insecure completion-dependent directories" warning
+# on every zsh startup. Idempotent: only chmods dirs whose group- or
+# other-writable bit is set. No-op when ~/.oh-my-zsh is missing.
+_fix_omz_perms()
+{
+    [ -d "$HOME/.oh-my-zsh" ] || return
+
+    local d fixed=0
+    for d in \
+        "$HOME/.oh-my-zsh" \
+        "$HOME/.oh-my-zsh/custom" \
+        "$HOME/.oh-my-zsh/custom/themes" \
+        "$HOME/.oh-my-zsh/cache/completions" \
+        "$HOME/.oh-my-zsh/custom/plugins"/*/; do
+        [ -d "$d" ] || continue
+        # -perm /022 = either group-write (020) or other-write (002) bit set.
+        if find "$d" -maxdepth 0 -perm /022 -print 2>/dev/null | grep -q .; then
+            chmod g-w,o-w "$d" 2>/dev/null && fixed=$((fixed + 1))
+        fi
+    done
+    [ "$fixed" -gt 0 ] && echo "Tightened $fixed oh-my-zsh dir(s) to silence compaudit"
+}
+
 # _strip_managed_block <file>
 # Removes the termkit-managed block (from BLOCK_START to BLOCK_END) if present.
 _strip_managed_block()
@@ -441,6 +466,8 @@ apply_zsh()
 
     _strip_managed_block "$zshrc"
     _write_managed_block "$zshrc" "$theme_line"
+
+    _fix_omz_perms
 
     echo "Applied. Open a new terminal to see changes."
     echo "  (if your login shell is still bash, run 'zsh' — 'source ~/.zshrc' from bash will fail because oh-my-zsh refuses to load under bash)"
