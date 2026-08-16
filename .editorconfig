@@ -1,0 +1,24 @@
+# EditorConfig: https://editorconfig.org
+# Read by most editors (VSCode, JetBrains, Vim, Emacs, ...) and by shfmt v3+.
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Markdown may use two trailing spaces for a hard line break — keep them.
+[*.md]
+trim_trailing_whitespace = false
+
+# JSONC / JSON style: 2-space indent per common convention.
+[*.{json,jsonc}]
+indent_size = 2
+
+# Font files are binary — do not touch.
+[*.ttf]
+insert_final_newline = false
+trim_trailing_whitespace = false
