@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Sourced by your shell rc when [aliases] enabled=true in settings.conf.
 # The `alias name='command'` syntax works identically in bash and zsh.
 #

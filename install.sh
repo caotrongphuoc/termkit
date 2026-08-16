@@ -314,7 +314,7 @@ _patch_zshrc_line()
             { print }
         ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
         echo "Updated $label to '$new' in $zshrc"
-    elif grep -qF 'source $ZSH/oh-my-zsh.sh' "$zshrc"; then
+    elif grep -qF "source \$ZSH/oh-my-zsh.sh" "$zshrc"; then
         awk -v new="$new" '
             /^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 }
             { print }
