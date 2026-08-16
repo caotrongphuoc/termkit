@@ -272,6 +272,30 @@ apply_bash()
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
 }
 
+# _install_font
+# Copies the .ttf into ~/.local/share/fonts and refreshes the font cache.
+# No-op when [font] install=false or name=none.
+_install_font()
+{
+    [ "$font_install" != "true" ] && return
+    [ "$font_name" = "none" ] && return
+
+    local font_path="$SCRIPT_DIR/configs/fonts/$font_name.ttf"
+    if [ ! -f "$font_path" ]; then
+        echo "font file not found: $font_path"
+        exit 1
+    fi
+    mkdir -p "$HOME/.local/share/fonts"
+    cp -f "$font_path" "$HOME/.local/share/fonts/"
+    echo "Installed font: $font_name.ttf"
+    if command -v fc-cache >/dev/null 2>&1; then
+        fc-cache -f >/dev/null 2>&1
+        echo "Refreshed font cache"
+    else
+        echo "fc-cache not found, skipping cache refresh"
+    fi
+}
+
 # _patch_zshrc_line <new_line> <match_regex> <label>
 # Idempotently updates a single line in ~/.zshrc.
 #   1) If a line matching <match_regex> exists, replace it with <new_line>.
