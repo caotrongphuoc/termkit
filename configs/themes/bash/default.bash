@@ -1,11 +1,3 @@
-# Default bash theme: plain uncolored prompt.
-# Format: user@host:path$
-#
-# PS1 escape codes used here:
-#   \u   current username
-#   \h   short hostname
-#   \w   full working directory (with ~ for $HOME)
-#   \$   '$' for regular user, '#' for root
-#
-# See `man bash` -> PROMPTING section for the full escape list.
+# Default bash prompt. See `man bash` -> PROMPTING for the full escape list.
+# TWEAK: format string. \u=user, \h=host, \w=cwd, \$='$'/'#' (root).
 PS1='\u@\h:\w\$ '

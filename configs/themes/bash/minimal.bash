@@ -1,15 +1,5 @@
-# Minimal bash theme: cyan user, green host, blue path.
-# Format: <cyan>user</>@<green>host</>:<blue>path</>$
-#
-# Colors use ANSI escape codes:
-#   \e[COLORm    set foreground color
-#   \e[0m        reset to default
-#
-# Basic 8-color palette:
-#   30 black   31 red     32 green   33 yellow
-#   34 blue    35 magenta 36 cyan    37 white
-# For a wider 256-color palette use `\e[38;5;Nm` (N = 0..255). See ak.bash.
-#
-# Wrap non-printing sequences in \[...\] so bash counts prompt width correctly
-# when your input line wraps.
+# Minimal bash prompt: cyan user, green host, blue path.
+# ANSI 8-color palette: 30 black 31 red 32 green 33 yellow 34 blue 35 magenta 36 cyan 37 white.
+# TWEAK: swap 36/32/34 for other colors. Wrap non-printing bytes in \[...\].
+# For 256-color, see ak.bash.
 PS1='\[\e[36m\]\u\[\e[0m\]@\[\e[32m\]\h\[\e[0m\]:\[\e[34m\]\w\[\e[0m\]\$ '
