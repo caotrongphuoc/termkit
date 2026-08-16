@@ -1,62 +1,43 @@
 <h1 align="center">Setup guide</h1>
 
-Install the tools Termkit needs on your machine BEFORE cloning the repo. This document lists exactly what to install for each supported shell, plus optional extras.
+Install these BEFORE cloning termkit.
 
 ---
 
 ## Table of Contents
 
-- [I. Base tools (always required)](#i-base-tools-always-required)
+- [I. Base tools](#i-base-tools)
 - [II. Bash path](#ii-bash-path)
 - [III. Zsh path](#iii-zsh-path)
-  - [1. Install zsh](#1-install-zsh)
-  - [2. Install oh-my-zsh](#2-install-oh-my-zsh)
-  - [3. Install zsh plugins (per-theme optional)](#3-install-zsh-plugins-per-theme-optional)
-  - [4. Make zsh your default shell (optional)](#4-make-zsh-your-default-shell-optional)
-- [IV. Optional extras](#iv-optional-extras)
-  - [1. fastfetch](#1-fastfetch)
-  - [2. fontconfig](#2-fontconfig)
-- [V. Nerd Font for Powerline glyphs](#v-nerd-font-for-powerline-glyphs)
-  - [1. Install the font](#1-install-the-font)
-  - [2. Set your terminal emulator to use it](#2-set-your-terminal-emulator-to-use-it)
+- [IV. Optional: fastfetch](#iv-optional-fastfetch)
+- [V. Optional: fontconfig](#v-optional-fontconfig)
+- [VI. Nerd Font](#vi-nerd-font)
 
 ---
 
-## I. Base tools (always required)
+## I. Base tools
 
-Most Linux distros ship these. On a minimal system:
-
-Debian / Ubuntu:
+Usually pre-installed. On a minimal system:
 
 ```
-sudo apt install bash coreutils gawk sed git
+sudo apt install bash coreutils gawk sed git   # Debian/Ubuntu
+sudo dnf install bash coreutils gawk sed git   # Fedora
+sudo pacman -S bash coreutils gawk sed git     # Arch
 ```
 
-Fedora:
-
-```
-sudo dnf install bash coreutils gawk sed git
-```
-
-Arch:
-
-```
-sudo pacman -S bash coreutils gawk sed git
-```
-
-> **Note:** Termkit uses GNU `sed -i`. Linux only — not macOS or BSD.
+> **Note:** Termkit uses GNU `sed -i`. Linux only.
 
 ---
 
 ## II. Bash path
 
-If `[shell] name=bash`, nothing extra is needed. The base tools above are enough.
+Nothing extra. Base tools are enough.
 
 ---
 
 ## III. Zsh path
 
-Setup for `[shell] name=zsh` has four sub-steps. Only steps 1 and 2 are always required; step 3 depends on the theme you pick, step 4 is convenience.
+Steps 1-2 are required; 3 depends on theme; 4 is convenience.
 
 ### 1. Install zsh
 
@@ -66,104 +47,64 @@ sudo apt install zsh
 
 ### 2. Install oh-my-zsh
 
-Only required if your `[theme] name` points to a `.zsh-theme` file. Standalone `.zsh` themes do not need oh-my-zsh.
-
-The unattended install below will NOT change your login shell yet:
+Required for `.zsh-theme` files (not for standalone `.zsh`). Unattended install does NOT change your login shell:
 
 ```
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 ```
 
-### 3. Install zsh plugins (per-theme optional)
+### 3. Install zsh plugins (optional)
 
-Themes that use syntax highlighting or autosuggestions expect these plugins. Skip if your theme does not use them.
+Needed by themes that use syntax highlighting or autosuggestions:
 
 ```
 git clone https://github.com/zsh-users/zsh-syntax-highlighting \
   ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-
 git clone https://github.com/zsh-users/zsh-autosuggestions \
   ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 ```
 
-Then enable the plugins. Two options:
+Enable via `[zsh] plugins=git zsh-syntax-highlighting zsh-autosuggestions` in `settings.conf` — apply patches `~/.zshrc` for you. Or leave empty and edit `~/.zshrc` yourself.
 
-- **Let Termkit patch `~/.zshrc` for you** — set in `configs/settings.conf`:
-
-  ```
-  [zsh]
-  plugins=git zsh-syntax-highlighting zsh-autosuggestions
-  ```
-
-  On `./install.sh apply`, Termkit replaces the existing `plugins=(...)` line (or inserts one before the oh-my-zsh source line).
-
-- **Manage plugins yourself** — leave `[zsh] plugins=` empty in `settings.conf`, then edit `~/.zshrc` directly. Find the line starting with `plugins=(` and set:
-
-  ```
-  plugins=(git zsh-syntax-highlighting zsh-autosuggestions)
-  ```
-
-> **Note:** `./install.sh apply` automatically tightens the oh-my-zsh directory perms that trigger the `[oh-my-zsh] Insecure completion-dependent directories detected` warning, so you should not see it in normal usage. If you install plugins manually AFTER apply and hit the warning, either re-run `./install.sh apply` or fix by hand inside zsh:
->
-> ```
-> compaudit | xargs chmod g-w,o-w
-> ```
+> **Note:** `./install.sh apply` auto-fixes the `[oh-my-zsh] Insecure completion-dependent directories detected` warning. If it appears after you install plugins manually, re-run apply, or fix in zsh: `compaudit | xargs chmod g-w,o-w`.
 
 ### 4. Make zsh your default shell (optional)
-
-Log out and back in after running:
 
 ```
 chsh -s "$(which zsh)"
 ```
 
-> **Note:** Until you do this, new terminals still open in bash. To try zsh in the current terminal without changing your login shell, just type `zsh`. Do not run `source ~/.zshrc` from bash — oh-my-zsh refuses to load under bash and will print an error.
+Log out and back in. Meanwhile, type `zsh` in the current terminal to try it — don't `source ~/.zshrc` from bash, oh-my-zsh refuses to load.
 
 ---
 
-## IV. Optional extras
+## IV. Optional: fastfetch
 
-### 1. fastfetch
+Needed when `[logo] use_fastfetch=true`. Not in default apt on Ubuntu 22.04 and earlier — pick one:
 
-Only when `[logo] use_fastfetch=true`. Prints the logo alongside OS info instead of plain `cat`.
-
-fastfetch is not in the default apt repos of older Ubuntu (22.04 and earlier). Pick one of the install methods below.
-
-**a. Download the .deb from GitHub releases** — works on any Ubuntu version:
-
+**a. .deb from GitHub** (any Ubuntu):
 ```
 curl -LO https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb
-sudo dpkg -i fastfetch-linux-amd64.deb
-sudo apt install -f     # fix missing deps if any
+sudo dpkg -i fastfetch-linux-amd64.deb && sudo apt install -f
 ```
 
-**b. PPA** — auto-updates through apt afterwards:
-
+**b. PPA** (auto-updates):
 ```
 sudo add-apt-repository ppa:zhangsongcui3371/fastfetch
-sudo apt update
-sudo apt install fastfetch
+sudo apt update && sudo apt install fastfetch
 ```
 
-**c. Snap:**
+**c. Snap:** `sudo snap install fastfetch`
 
-```
-sudo snap install fastfetch
-```
+**d. Direct** (Ubuntu 24.04+, Fedora, Arch): `apt/dnf/pacman install fastfetch`
 
-**d. Direct apt** — only on Ubuntu 24.04+ and current Fedora / Arch:
+Verify: `fastfetch --version`.
 
-```
-sudo apt install fastfetch          # Debian 13+, Ubuntu 24.04+
-sudo dnf install fastfetch          # Fedora
-sudo pacman -S fastfetch            # Arch
-```
+---
 
-Verify with `fastfetch --version`.
+## V. Optional: fontconfig
 
-### 2. fontconfig
-
-Only when `[font] install=true`. Provides `fc-cache` to refresh the font cache after Termkit copies fonts into `~/.local/share/fonts/`.
+Needed when `[font] install=true`. Provides `fc-cache`:
 
 ```
 sudo apt install fontconfig
@@ -171,15 +112,11 @@ sudo apt install fontconfig
 
 ---
 
-## V. Nerd Font for Powerline glyphs
+## VI. Nerd Font
 
-The kit ships `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf` — a font that includes Powerline arrow glyphs (`` and friends) and other icons used by the ak zsh theme. Without a Nerd Font, Powerline arrows render as empty boxes ("tofu").
-
-Two steps to use it.
+The kit ships `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf` — needed for Powerline arrow glyphs (``). Without it, arrows render as tofu boxes.
 
 ### 1. Install the font
-
-Set the font in `configs/settings.conf`:
 
 ```
 [font]
@@ -187,23 +124,12 @@ name=JetBrainsMonoNerdFont-Regular
 install=true
 ```
 
-Then run `./install.sh apply`. Termkit copies the `.ttf` into `~/.local/share/fonts/` and runs `fc-cache -f` (needs [fontconfig](#2-fontconfig)).
+Run `./install.sh apply` → copied to `~/.local/share/fonts/`, cache refreshed (needs [fontconfig](#v-optional-fontconfig)).
 
-### 2. Set your terminal emulator to use it
+### 2. Set your terminal to use it
 
-Installing the font makes it available system-wide, but your terminal emulator picks its own font.
+- **GNOME Terminal**: Preferences → Profile → Text → Custom font → **JetBrainsMonoNerdFont Regular**
+- **Kitty** (`~/.config/kitty/kitty.conf`): `font_family JetBrainsMonoNerdFont-Regular`
+- **Alacritty** (`~/.config/alacritty/alacritty.toml`): `[font.normal]` + `family = "JetBrainsMonoNerdFont-Regular"`
 
-For **GNOME Terminal**: Preferences → your Profile → Text → Custom font → **JetBrainsMonoNerdFont Regular**.
-
-For **Kitty**: add to `~/.config/kitty/kitty.conf`:
-```
-font_family JetBrainsMonoNerdFont-Regular
-```
-
-For **Alacritty**: add to `~/.config/alacritty/alacritty.toml`:
-```
-[font.normal]
-family = "JetBrainsMonoNerdFont-Regular"
-```
-
-> **Note:** Some terminals auto-fallback via fontconfig — installing the font may be enough for Powerline glyphs to render even without changing the profile font. Test by opening a new terminal and checking a prompt with an arrow.
+> **Note:** Some terminals auto-fallback via fontconfig — installing the font alone may be enough.
