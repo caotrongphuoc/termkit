@@ -21,6 +21,8 @@
 | [docs/03-guide-extending.md](docs/03-guide-extending.md) | Add your own theme, font, or logo to the kit. |
 | [docs/04-guide-ak-sample.md](docs/04-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
 
+New here? Read the docs in order — **01** to install prereqs, then jump to **04 Section II** if you want the shipped `ak` preset as-is, or **02 → 03** if you want to build your own from scratch.
+
 ## Introduction
 
 Termkit is a small toolkit for configuring Linux terminals — pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
@@ -39,6 +41,8 @@ cd ~/termkit
 nano configs/settings.conf     # or vim, gedit, code — pick shell, theme, logo, aliases
 ./install.sh apply
 ```
+
+> Want the exact `ak` preset shown in the banner above? Copy the settings.conf block from [docs/04-guide-ak-sample.md Section II.1](docs/04-guide-ak-sample.md#1-configure-settingsconf) — it turns on every option (zsh + ak theme + Nerd Font install + AK logo via fastfetch + plugins + aliases) in one paste.
 
 Then open a new terminal to see changes.
 
