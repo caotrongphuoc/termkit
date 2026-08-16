@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# termkit installer.
-# Reads configs/settings.conf and applies terminal customization to bash or zsh.
+# termkit installer. Reads configs/settings.conf and applies to bash or zsh.
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
@@ -8,11 +7,10 @@ CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
 
 # --- INI helpers -------------------------------------------------------------
 
-# conf_get <section> <key> -> prints value (empty if missing).
+# conf_get <section> <key> — print value, or empty if missing.
 conf_get()
 {
-    local section=$1
-    local key=$2
+    local section=$1 key=$2
     awk -v s="[$section]" -v k="$key" '
         $0 == s { in_s = 1; next }
         /^\[.*\]/ { in_s = 0; next }
@@ -24,13 +22,10 @@ conf_get()
     ' "$CONF_FILE"
 }
 
-# conf_set <section> <key> <value>
-# Updates the key in place. Creates the key or section if missing.
+# conf_set <section> <key> <value> — update in place, create if missing.
 conf_set()
 {
-    local section=$1
-    local key=$2
-    local value=$3
+    local section=$1 key=$2 value=$3
     local tmp
     tmp=$(mktemp)
     awk -v s="[$section]" -v k="$key" -v v="$value" '
@@ -56,11 +51,18 @@ conf_set()
     mv "$tmp" "$CONF_FILE"
 }
 
+# _get <section> <key> <default> — conf_get with a fallback if empty.
+_get()
+{
+    local v
+    v=$(conf_get "$1" "$2")
+    echo "${v:-$3}"
+}
+
 
 # --- config loader -----------------------------------------------------------
 
-# load_settings
-# Reads settings.conf into shell variables used by the action functions.
+# load_settings — read settings.conf into shell variables.
 load_settings()
 {
     if [ ! -f "$CONF_FILE" ]; then
@@ -68,30 +70,15 @@ load_settings()
         exit 1
     fi
 
-    shell_name=$(conf_get shell name)
-    # Default to bash when [shell] is missing (backward compat with v0.1 files).
-    if [ -z "$shell_name" ]; then
-        shell_name="bash"
-    fi
-
-    # zsh-only settings. Empty when [zsh] section is missing (backward compat).
+    shell_name=$(_get shell name bash)
     zsh_plugins=$(conf_get zsh plugins)
-
     theme_name=$(conf_get theme name)
     font_name=$(conf_get font name)
     font_install=$(conf_get font install)
     logo_file=$(conf_get logo file)
     logo_enabled=$(conf_get logo enabled)
-    logo_fastfetch=$(conf_get logo use_fastfetch)
-    # Default to false when the field is missing (backward compat with v0.1 files).
-    if [ -z "$logo_fastfetch" ]; then
-        logo_fastfetch="false"
-    fi
-    fastfetch_config=$(conf_get fastfetch config)
-    # Default to none when the section is missing (backward compat with pre-v0.3 files).
-    if [ -z "$fastfetch_config" ]; then
-        fastfetch_config="none"
-    fi
+    logo_fastfetch=$(_get logo use_fastfetch false)
+    fastfetch_config=$(_get fastfetch config none)
     aliases_enabled=$(conf_get aliases enabled)
 }
 
@@ -104,9 +91,7 @@ show_status()
     echo "=== termkit status ==="
     echo " settings file : $CONF_FILE"
     echo " shell         : $shell_name"
-    if [ "$shell_name" = "zsh" ]; then
-        echo " zsh plugins   : ${zsh_plugins:-(none)}"
-    fi
+    [ "$shell_name" = "zsh" ] && echo " zsh plugins   : ${zsh_plugins:-(none)}"
     echo " theme         : $theme_name"
     echo " font          : $font_name  (install: $font_install)"
     echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
@@ -178,10 +163,7 @@ apply_all()
     case "$shell_name" in
         bash) apply_bash ;;
         zsh)  apply_zsh ;;
-        *)
-            echo "unsupported shell: $shell_name (expected: bash or zsh)"
-            exit 1
-            ;;
+        *) echo "unsupported shell: $shell_name (expected: bash or zsh)"; exit 1 ;;
     esac
 }
 
@@ -190,18 +172,12 @@ apply_bash()
     local bashrc="$HOME/.bashrc"
     local backup="$HOME/.bashrc.termkit.bak"
 
-    # Make sure ~/.bashrc exists so we always have a file to append to.
-    if [ ! -f "$bashrc" ]; then
-        touch "$bashrc"
-    fi
-
-    # Keep a one-time backup of the original bashrc.
+    [ -f "$bashrc" ] || touch "$bashrc"
     if [ ! -f "$backup" ]; then
         cp "$bashrc" "$backup"
         echo "Backup created: $backup"
     fi
 
-    # Verify the referenced files exist before touching bashrc.
     local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.bash"
     if [ ! -f "$theme_file" ]; then
         echo "theme file not found: $theme_file"
@@ -227,25 +203,20 @@ apply_bash()
     fi
 
     _install_font
-
     _apply_fastfetch_config
 
-    # Decide how to print the logo: fastfetch if requested and available, else cat.
     local logo_cmd=""
-    if [ -n "$logo_path" ]; then
-        logo_cmd=$(_render_logo_cmd "$logo_path")
-    fi
+    [ -n "$logo_path" ] && logo_cmd=$(_render_logo_cmd "$logo_path")
 
-    # Strip any existing termkit block so re-apply does not stack duplicates.
     _strip_managed_block "$bashrc"
     _write_managed_block "$bashrc" "source \"$theme_file\""
 
     echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
 }
 
-# _install_font
-# Copies the .ttf into ~/.local/share/fonts and refreshes the font cache.
-# No-op when [font] install=false or name=none.
+# --- helpers -----------------------------------------------------------------
+
+# _install_font — copy .ttf to ~/.local/share/fonts + fc-cache. No-op unless install=true.
 _install_font()
 {
     [ "$font_install" != "true" ] && return
@@ -267,11 +238,7 @@ _install_font()
     fi
 }
 
-# _fix_omz_perms
-# Tightens permissions on the oh-my-zsh directories that compaudit checks so
-# it stops printing the "insecure completion-dependent directories" warning
-# on every zsh startup. Idempotent: only chmods dirs whose group- or
-# other-writable bit is set. No-op when ~/.oh-my-zsh is missing.
+# _fix_omz_perms — chmod g-w,o-w on oh-my-zsh dirs to silence compaudit. Idempotent.
 _fix_omz_perms()
 {
     [ -d "$HOME/.oh-my-zsh" ] || return
@@ -284,7 +251,7 @@ _fix_omz_perms()
         "$HOME/.oh-my-zsh/cache/completions" \
         "$HOME/.oh-my-zsh/custom/plugins"/*/; do
         [ -d "$d" ] || continue
-        # -perm /022 = either group-write (020) or other-write (002) bit set.
+        # -perm /022 = group-write or other-write bit set.
         if find "$d" -maxdepth 0 -perm /022 -print 2>/dev/null | grep -q .; then
             chmod g-w,o-w "$d" 2>/dev/null && fixed=$((fixed + 1))
         fi
@@ -292,22 +259,18 @@ _fix_omz_perms()
     [ "$fixed" -gt 0 ] && echo "Tightened $fixed oh-my-zsh dir(s) to silence compaudit"
 }
 
-# _strip_managed_block <file>
-# Removes the termkit-managed block (from BLOCK_START to BLOCK_END) if present.
+# _strip_managed_block <file> — remove the block from BLOCK_START to BLOCK_END.
 _strip_managed_block()
 {
     sed -i "\|^${BLOCK_START}\$|,\|^${BLOCK_END}\$|d" "$1"
 }
 
-# _write_managed_block <file> <theme_line>
-# Appends the termkit managed block to <file>. <theme_line> is the shell line
-# that sources the theme (empty string to skip, used for oh-my-zsh themes
-# loaded via ZSH_THEME earlier in the file).
-# Reads $logo_cmd and $aliases_path from the caller's scope.
+# _write_managed_block <file> <theme_line> — append managed block. Pass empty
+# theme_line for oh-my-zsh themes (loaded via ZSH_THEME, not sourced here).
+# Reads $logo_cmd and $aliases_path from the caller.
 _write_managed_block()
 {
-    local file="$1"
-    local theme_line="$2"
+    local file=$1 theme_line=$2
     {
         echo "$BLOCK_START"
         echo "# Generated by termkit. Do not edit by hand."
@@ -319,42 +282,27 @@ _write_managed_block()
 }
 
 # _patch_zshrc_line <new_line> <match_regex> <label>
-# Idempotently updates a single line in ~/.zshrc.
-#   1) If a line matching <match_regex> exists, replace it with <new_line>.
-#   2) Else, insert <new_line> right before 'source $ZSH/oh-my-zsh.sh'.
-#   3) Else, print a warning telling the user to add it manually.
-# <label> is used only for status messages.
+# Replace matching line in ~/.zshrc, or insert before oh-my-zsh source line. Warn if neither.
 _patch_zshrc_line()
 {
-    local new="$1"
-    local pattern="$2"
-    local label="$3"
+    local new=$1 pattern=$2 label=$3
     local zshrc="$HOME/.zshrc"
     local tmp
     tmp=$(mktemp)
 
     if grep -q "$pattern" "$zshrc"; then
-        awk -v new="$new" -v pat="$pattern" '
-            $0 ~ pat { print new; next }
-            { print }
-        ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+        awk -v new="$new" -v pat="$pattern" '$0 ~ pat { print new; next } { print }' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
         echo "Updated $label to '$new' in $zshrc"
     elif grep -qF "source \$ZSH/oh-my-zsh.sh" "$zshrc"; then
-        awk -v new="$new" '
-            /^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 }
-            { print }
-        ' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
+        awk -v new="$new" '/^source \$ZSH\/oh-my-zsh.sh/ && !ins { print new; ins=1 } { print }' "$zshrc" > "$tmp" && mv "$tmp" "$zshrc"
         echo "Inserted '$new' before oh-my-zsh source line in $zshrc"
     else
         rm -f "$tmp"
-        echo "WARNING: could not find $label line or oh-my-zsh source in $zshrc."
-        echo "         Add this line manually near the top: $new"
+        echo "WARNING: no $label line or oh-my-zsh source in $zshrc. Add manually: $new"
     fi
 }
 
-# _apply_fastfetch_config
-# Overwrites ~/.config/fastfetch/config.jsonc with the shipped file whose
-# basename matches [fastfetch] config. No-op when config=none.
+# _apply_fastfetch_config — overwrite ~/.config/fastfetch/config.jsonc. No-op if config=none.
 _apply_fastfetch_config()
 {
     [ "$fastfetch_config" = "none" ] && return
@@ -368,12 +316,10 @@ _apply_fastfetch_config()
     echo "Installed fastfetch config: $HOME/.config/fastfetch/config.jsonc"
 }
 
-# _render_logo_cmd <path>
-# Prints the shell command that should be embedded in the managed block to
-# display the logo. Uses fastfetch when requested and installed, else cat.
+# _render_logo_cmd <path> — print the shell line to display the logo (fastfetch or cat).
 _render_logo_cmd()
 {
-    local path="$1"
+    local path=$1
     if [ "$logo_fastfetch" = "true" ]; then
         if command -v fastfetch >/dev/null 2>&1; then
             printf 'fastfetch --logo "%s"\n' "$path"
@@ -384,23 +330,21 @@ _render_logo_cmd()
     printf 'cat "%s"\n' "$path"
 }
 
+# --- apply_zsh ---------------------------------------------------------------
+
 apply_zsh()
 {
     local zshrc="$HOME/.zshrc"
     local backup="$HOME/.zshrc.termkit.bak"
 
-    if [ ! -f "$zshrc" ]; then
-        touch "$zshrc"
-    fi
-
+    [ -f "$zshrc" ] || touch "$zshrc"
     if [ ! -f "$backup" ]; then
         cp "$zshrc" "$backup"
         echo "Backup created: $backup"
     fi
 
-    # Locate the theme. Prefer standalone (.zsh); fall back to oh-my-zsh (.zsh-theme).
-    local theme_file=""
-    local is_omz_theme=0
+    # Prefer standalone .zsh; fall back to .zsh-theme (oh-my-zsh).
+    local theme_file="" is_omz_theme=0
     if [ -f "$SCRIPT_DIR/configs/themes/zsh/$theme_name.zsh" ]; then
         theme_file="$SCRIPT_DIR/configs/themes/zsh/$theme_name.zsh"
     elif [ -f "$SCRIPT_DIR/configs/themes/zsh/$theme_name.zsh-theme" ]; then
@@ -431,36 +375,27 @@ apply_zsh()
 
     _install_font
 
-    # For oh-my-zsh themes: copy into custom themes and patch ZSH_THEME in
-    # ~/.zshrc automatically (it must be set BEFORE 'source $ZSH/oh-my-zsh.sh',
-    # which is why our end-of-file managed block cannot handle it).
+    # oh-my-zsh themes: copy + patch ZSH_THEME (must be set before oh-my-zsh source line).
     if [ "$is_omz_theme" = "1" ]; then
         if [ -d "$HOME/.oh-my-zsh" ]; then
             local omz_custom="$HOME/.oh-my-zsh/custom/themes"
             mkdir -p "$omz_custom"
             cp -f "$theme_file" "$omz_custom/$theme_name.zsh-theme"
             echo "Installed oh-my-zsh theme: $omz_custom/$theme_name.zsh-theme"
-
             _patch_zshrc_line "ZSH_THEME=\"$theme_name\"" '^ZSH_THEME=' "ZSH_THEME"
         else
             echo "WARNING: ~/.oh-my-zsh not found. Install oh-my-zsh first, then re-run apply."
         fi
     fi
 
-    # Patch plugins=(...) line in ~/.zshrc if [zsh] plugins is non-empty.
-    if [ -n "$zsh_plugins" ]; then
-        _patch_zshrc_line "plugins=($zsh_plugins)" '^plugins=' "plugins"
-    fi
+    [ -n "$zsh_plugins" ] && _patch_zshrc_line "plugins=($zsh_plugins)" '^plugins=' "plugins"
 
     _apply_fastfetch_config
 
     local logo_cmd=""
-    if [ -n "$logo_path" ]; then
-        logo_cmd=$(_render_logo_cmd "$logo_path")
-    fi
+    [ -n "$logo_path" ] && logo_cmd=$(_render_logo_cmd "$logo_path")
 
-    # Standalone .zsh themes are sourced from the block. Oh-my-zsh themes
-    # are loaded via ZSH_THEME earlier in ~/.zshrc, so pass empty for them.
+    # Standalone .zsh gets sourced in the block; oh-my-zsh themes load via ZSH_THEME.
     local theme_line=""
     [ "$is_omz_theme" = "0" ] && theme_line="source \"$theme_file\""
 
@@ -469,9 +404,10 @@ apply_zsh()
 
     _fix_omz_perms
 
-    echo "Applied. Open a new terminal to see changes."
-    echo "  (if your login shell is still bash, run 'zsh' — 'source ~/.zshrc' from bash will fail because oh-my-zsh refuses to load under bash)"
+    echo "Applied. Open a new terminal (or 'exec zsh') to see changes."
 }
+
+# --- uninstall ---------------------------------------------------------------
 
 uninstall_all()
 {
@@ -483,22 +419,18 @@ uninstall_all()
     local omz_themes="$HOME/.oh-my-zsh/custom/themes"
     local removed_any=0
 
-    # Strip the managed block from ~/.bashrc if present.
     if [ -f "$bashrc" ] && grep -q "^${BLOCK_START}\$" "$bashrc" 2>/dev/null; then
         _strip_managed_block "$bashrc"
         echo "Removed termkit block from $bashrc"
         removed_any=1
     fi
-
-    # Strip the managed block from ~/.zshrc if present.
     if [ -f "$zshrc" ] && grep -q "^${BLOCK_START}\$" "$zshrc" 2>/dev/null; then
         _strip_managed_block "$zshrc"
         echo "Removed termkit block from $zshrc"
         removed_any=1
     fi
 
-    # Remove any font under ~/.local/share/fonts whose basename matches
-    # a file we ship in configs/fonts. We do not touch fonts from elsewhere.
+    # Remove fonts whose basename matches a file we ship. Foreign fonts untouched.
     if [ -d "$fonts_dir" ]; then
         local removed_font=0 name
         local -a shipped_fonts=()
@@ -521,8 +453,7 @@ uninstall_all()
         fi
     fi
 
-    # Remove any oh-my-zsh custom theme whose basename matches a .zsh-theme
-    # we ship in configs/themes/zsh. Themes from elsewhere are left alone.
+    # Remove oh-my-zsh custom themes matching shipped basenames. Foreign themes untouched.
     if [ -d "$omz_themes" ]; then
         local name
         local -a shipped_omz=()
@@ -540,9 +471,7 @@ uninstall_all()
         done
     fi
 
-    # Remove ~/.config/fastfetch/config.jsonc only if it matches one of the
-    # shipped configs/fastfetch/*.jsonc files byte-for-byte. If the user
-    # edited it after apply, leave it alone.
+    # Remove fastfetch config only if content matches a shipped file byte-for-byte.
     local ff_config="$HOME/.config/fastfetch/config.jsonc"
     if [ -f "$ff_config" ] && [ -d "$SCRIPT_DIR/configs/fastfetch" ]; then
         local shipped
@@ -570,18 +499,10 @@ uninstall_all()
 # --- dispatch ----------------------------------------------------------------
 
 case "$1" in
-    apply)
-        apply_all
-        ;;
-    uninstall)
-        uninstall_all
-        ;;
-    status)
-        show_status
-        ;;
-    clean)
-        reset_settings
-        ;;
+    apply)     apply_all ;;
+    uninstall) uninstall_all ;;
+    status)    show_status ;;
+    clean)     reset_settings ;;
     *)
         echo "Usage:"
         echo " $0 apply     : read settings.conf and apply to your shell rc"
