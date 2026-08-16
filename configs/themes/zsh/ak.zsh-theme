@@ -1,46 +1,21 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
 #
-# AK's desktop terminal theme: pixegami-agnoster (unchanged upstream).
+# AK's oh-my-zsh theme. Fork of pixegami-agnoster, code unchanged.
 # Upstream: https://github.com/pixegami/terminal-profile
-# Set ZSH_THEME="ak" in ~/.zshrc BEFORE the oh-my-zsh source line.
+# Original agnoster: https://gist.github.com/3712874
 #
-# Original agnoster's Theme - https://gist.github.com/3712874
-# A Powerline-inspired theme for ZSH
-# Pixegami: Modified some elements to suit my Python/Git heavy use.
-#
-# ------------------------------------------------------------------
-# CUSTOMIZATION GUIDE
-# ------------------------------------------------------------------
-# Look for `# TWEAK:` lines below — they mark the places most likely
-# to change. Run `grep -n TWEAK ak.zsh-theme` to list them all.
-# Color numbers are 0..255 palette indices; preview with:
-#   for i in {0..255}; do print -P "%F{$i}$i%f"; done
-# ------------------------------------------------------------------
+# To customize: run `grep -n TWEAK ak.zsh-theme` for edit points.
+# Colors are 0..255. Preview: for i in {0..255}; do print -P "%F{$i}$i%f"; done
 
 
 CURRENT_BG='NONE'
 
-# Special Powerline characters
-
 () {
   local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-  # NOTE: This segment separator character is correct.  In 2012, Powerline changed
-  # the code points they use for their special characters. This is the new code point.
-  # If this is not working for you, you probably have an old version of the
-  # Powerline-patched fonts installed. Download and install the new version.
-  # Do not submit PRs to change this unless you have reviewed the Powerline code point
-  # history and have new information.
-  # This is defined using a Unicode escape sequence so it is unambiguously readable, regardless of
-  # what font the user is viewing this source code in. Do not replace the
-  # escape sequence with a single literal character.
-  # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
-  # TWEAK: no Nerd/Powerline font? Swap to plain char: '>' | '|' | '❯'
-  SEGMENT_SEPARATOR=$'\ue0b0'
+  # TWEAK: no Nerd font? Use '>', '|', or '❯'.
+  SEGMENT_SEPARATOR=$''
 }
 
-# Begin a segment
-# Takes two arguments, background and foreground. Both can be omitted,
-# rendering default background/foreground.
 prompt_segment() {
   local bg fg
   [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
@@ -54,7 +29,6 @@ prompt_segment() {
   [[ -n $3 ]] && echo -n $3
 }
 
-# End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
     echo -n " %{%k%F{$CURRENT_BG}%}$SEGMENT_SEPARATOR"
@@ -65,25 +39,18 @@ prompt_end() {
   CURRENT_BG=''
 }
 
-### Prompt components
-# Each component will draw itself, and hide itself if no information needs to be shown
-
-# Context: user@hostname (who am I and where am I)
 prompt_context() {
-  # TWEAK: bg=008 (dark grey), fg=010 (bright green). Swap for any 0..255.
-  # TWEAK: content "%n" = username only. Use "%n@%m" to also show hostname.
-  # TWEAK: root color = yellow. Change `%F{yellow}` inside the %(!....) block.
+  # TWEAK: bg 008, fg 010. Use "%n@%m" to show hostname too.
   prompt_segment 008 010 "%(!.%{%F{yellow}%}.)%n"
 }
 
-# Git: branch/detached head, dirty status
 prompt_git() {
   (( $+commands[git] )) || return
   local PL_BRANCH_CHAR
   () {
     local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    # TWEAK: git branch icon. Needs Nerd font. Fallbacks: ''  |  git:  
-    PL_BRANCH_CHAR=$'\ue0a0'         # 
+    # TWEAK: branch icon. Needs Nerd font. Fallback: '', 'git:'.
+    PL_BRANCH_CHAR=$''
   }
   local ref dirty mode repo_path
   repo_path=$(git rev-parse --git-dir 2>/dev/null)
@@ -91,16 +58,14 @@ prompt_git() {
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
-    # TWEAK: git segment colors.
-    #   dirty = yellow bg + black fg. clean = 014 (cyan) bg + 002 (green) fg.
+    # TWEAK: dirty = yellow/black. clean = 014/002.
     if [[ -n $dirty ]]; then
       prompt_segment yellow black
     else
       prompt_segment 014 002
     fi
 
-    # TWEAK: mode indicators shown when git is bisecting/merging/rebasing.
-    #   Swap strings for icons if you like:  ⎇  or  or plain 'BISECT'/'MERGE'/'REBASE'.
+    # TWEAK: markers shown while bisecting/merging/rebasing.
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
       mode=" <B>"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
@@ -115,9 +80,7 @@ prompt_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    # TWEAK: dirty indicators after the branch name.
-    #   '+' shown when there are staged changes; '-' when unstaged.
-    #   Any single char works: '✚' / '●' / '*' etc.
+    # TWEAK: '+' = staged, '-' = unstaged. Any single char works.
     zstyle ':vcs_info:*' stagedstr '+'
     zstyle ':vcs_info:*' unstagedstr '-'
     zstyle ':vcs_info:*' formats ' %u%c'
@@ -140,7 +103,6 @@ prompt_bzr() {
             if [[ $status_all -gt 0 ]] ; then
                 prompt_segment yellow black
                 echo -n "bzr@"$revision
-
             else
                 prompt_segment green black
                 echo -n "bzr@"$revision
@@ -155,15 +117,12 @@ prompt_hg() {
   if $(hg id >/dev/null 2>&1); then
     if $(hg prompt >/dev/null 2>&1); then
       if [[ $(hg prompt "{status|unknown}") = "?" ]]; then
-        # if files are not added
         prompt_segment red white
         st='±'
       elif [[ -n $(hg prompt "{status|modified}") ]]; then
-        # if any modification
         prompt_segment yellow black
         st='±'
       else
-        # if working copy is clean
         prompt_segment green black
       fi
       echo -n $(hg prompt "☿ {rev}@{branch}") $st
@@ -185,30 +144,22 @@ prompt_hg() {
   fi
 }
 
-# Dir: current working directory
 prompt_dir() {
-  # prompt_segment 008 010 $(basename `pwd`) 
+  # prompt_segment 008 010 $(basename `pwd`)
 }
 
-# Virtualenv: current working virtualenv
-# TWEAK: this only fires for Anaconda. For plain venv/virtualenv, swap body to:
+# TWEAK: only fires for Anaconda. For plain venv, swap body to:
 #   [[ -n $VIRTUAL_ENV ]] && prompt_segment black default "${VIRTUAL_ENV:t}"
-# (${VAR:t} is zsh's basename modifier.)
 prompt_virtualenv() {
   if [[ -n $CONDA_PROMPT_MODIFIER ]]; then
     prompt_segment black default ${CONDA_PROMPT_MODIFIER:1:-2}
   fi
 }
 
-# Status:
-# - was there an error
-# - am I root
-# - are there background jobs?
 prompt_status() {
   local symbols
   symbols=()
-  # TWEAK: swap emojis and colors below. Delete a line to drop a status.
-  #   ✘ = last command non-zero  |  ⚡ = root  |  ⚙ = background jobs
+  # TWEAK: ✘ = failed cmd, ⚡ = root, ⚙ = bg jobs. Delete lines to hide.
   [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
   [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
@@ -217,23 +168,12 @@ prompt_status() {
 }
 
 prompt_head() {
-  # TWEAK: line 1 of the two-line prompt.
-  #   %~   = working dir with ~ for $HOME. Change format freely.
-  #   %64<..<%~%<<  = truncate to 64 chars. Change 64 to shrink/grow.
-  #   %F{7} = light grey. Any 0..255.
-  # Add a timestamp:  [%D{%H:%M} | %64<..<%~%<<]
-  # Compact single-line prompt: return early with `return` — but then move %~ into build_prompt.
-  echo "\r               "  # Clear prevous line
-  echo "\r %{%F{7}%}[%64<..<%~%<<]"  # Print Dir.
+  # TWEAK: top line. %~ = cwd. %64<..<%~%<< truncates over 64 chars.
+  echo "\r               "
+  echo "\r %{%F{7}%}[%64<..<%~%<<]"
 }
 
-## Main prompt
-# TWEAK: this list picks which segments render and in what order.
-#   Comment out any line to hide that segment. Reorder to change layout.
-#   `prompt_bzr` / `prompt_hg` are for Bazaar / Mercurial repos — safe to
-#   remove on a git-only machine (saves one `command -v` check per prompt).
-#   Do NOT move `RETVAL=$?` — it captures the exit code of the last command
-#   BEFORE anything else runs, so `prompt_status` can report success/fail.
+# TWEAK: segment order. Comment out a line to hide it. Don't move RETVAL=$?.
 build_prompt() {
   RETVAL=$?
   prompt_head
