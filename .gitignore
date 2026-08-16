@@ -1,0 +1,9 @@
+# backup files created by `./install.sh clean`
+*.bak
+
+# editor / OS metadata
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
