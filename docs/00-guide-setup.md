@@ -64,7 +64,7 @@ git clone https://github.com/zsh-users/zsh-autosuggestions \
   ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 ```
 
-Enable via `[zsh] plugins=git zsh-syntax-highlighting zsh-autosuggestions` in `settings.conf` — apply patches `~/.zshrc` for you. Or leave empty and edit `~/.zshrc` yourself.
+Enable via `[zsh] plugins=git zsh-syntax-highlighting zsh-autosuggestions` in `settings.conf`; apply patches `~/.zshrc` for you. Or leave empty and edit `~/.zshrc` yourself.
 
 > **Note:** `./install.sh apply` auto-fixes the `[oh-my-zsh] Insecure completion-dependent directories detected` warning. If it appears after you install plugins manually, re-run apply, or fix in zsh: `compaudit | xargs chmod g-w,o-w`.
 
@@ -74,13 +74,13 @@ Enable via `[zsh] plugins=git zsh-syntax-highlighting zsh-autosuggestions` in `s
 chsh -s "$(which zsh)"
 ```
 
-Log out and back in. Meanwhile, type `zsh` in the current terminal to try it — don't `source ~/.zshrc` from bash, oh-my-zsh refuses to load.
+Log out and back in. Meanwhile, type `zsh` in the current terminal to try it. Don't `source ~/.zshrc` from bash, oh-my-zsh refuses to load.
 
 ---
 
 ## IV. Optional: fastfetch
 
-Needed when `[logo] use_fastfetch=true`. Not in default apt on Ubuntu 22.04 and earlier — pick one:
+Needed when `[logo] use_fastfetch=true`. Not in default apt on Ubuntu 22.04 and earlier. Pick one:
 
 **a. .deb from GitHub** (any Ubuntu):
 ```
@@ -114,7 +114,7 @@ sudo apt install fontconfig
 
 ## VI. Nerd Font
 
-The kit ships `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf` — needed for Powerline arrow glyphs (``). Without it, arrows render as tofu boxes.
+The kit ships `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf`, needed for Powerline arrow glyphs (``). Without it, arrows render as tofu boxes.
 
 ### 1. Install the font
 
@@ -132,4 +132,4 @@ Run `./install.sh apply` → copied to `~/.local/share/fonts/`, cache refreshed 
 - **Kitty** (`~/.config/kitty/kitty.conf`): `font_family JetBrainsMonoNerdFont-Regular`
 - **Alacritty** (`~/.config/alacritty/alacritty.toml`): `[font.normal]` + `family = "JetBrainsMonoNerdFont-Regular"`
 
-> **Note:** Some terminals auto-fallback via fontconfig — installing the font alone may be enough.
+> **Note:** Some terminals auto-fallback via fontconfig; installing the font alone may be enough.

@@ -28,11 +28,11 @@
 | [docs/02-guide-extending.md](docs/02-guide-extending.md) | Add your own theme, font, or logo to the kit. |
 | [docs/03-guide-ak-sample.md](docs/03-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
 
-New here? Read the docs in order — **00** installs prereqs, **01** explains the schema, **02** shows how to add your own, **03** walks through the shipped preset piece by piece.
+New here? Read the docs in order. **00** installs prereqs, **01** explains the schema, **02** shows how to add your own, **03** walks through the shipped preset piece by piece.
 
 ## Introduction
 
-Termkit is a small toolkit for configuring Linux terminals — pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
+Termkit is a small toolkit for configuring Linux terminals. Pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
 
 - **State file:** A single `configs/settings.conf` captures every choice you have made.
 - **Managed block:** Termkit only writes a fenced block into `~/.bashrc` or `~/.zshrc`; the rest of the file is untouched.
@@ -45,7 +45,7 @@ Once prerequisites are installed (see [docs/00-guide-setup.md](docs/00-guide-set
 ```
 git clone https://github.com/caotrongphuoc/termkit.git ~/termkit
 cd ~/termkit
-nano configs/settings.conf     # or your editor — pick shell, theme, logo, aliases
+nano configs/settings.conf     # or your editor: pick shell, theme, logo, aliases
 ./install.sh apply
 ```
 

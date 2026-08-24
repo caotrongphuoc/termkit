@@ -43,7 +43,7 @@ config=none               # basename of configs/fastfetch/*.jsonc, or none
 enabled=false             # source configs/aliases.sh on shell start
 ```
 
-> **Note:** All `name` / `file` / `config` values are basenames without extension — Termkit appends the right one.
+> **Note:** All `name` / `file` / `config` values are basenames without extension; Termkit appends the right one.
 
 ---
 
@@ -63,7 +63,7 @@ Same as bash but for `~/.zshrc`. Also:
 
 ### Both
 
-- Re-running `apply` is idempotent — never stacks duplicate blocks.
+- Re-running `apply` is idempotent; never stacks duplicate blocks.
 - `[font] install=true` → copy the `.ttf` to `~/.local/share/fonts/` + `fc-cache -f`.
 - `[fastfetch] config` non-none → overwrite `~/.config/fastfetch/config.jsonc`. On uninstall, removed only if unchanged since apply (byte-for-byte match with a shipped file); hand-edits are preserved.
 - Anything else in your shell rc is untouched.
