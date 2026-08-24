@@ -13,6 +13,9 @@
 
 # Termkit - Terminal Setup Kit for Linux
 
+<center><img width="1280" height="640" alt="Termkit" src="resources/images/banner_termkit_1280x640.png" />
+</center>
+
 <hr>
 
 ## Demo
