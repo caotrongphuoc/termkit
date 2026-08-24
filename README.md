@@ -15,6 +15,13 @@
 
 <hr>
 
+## Demo
+
+<div align="center">
+  <img src="resources/images/sample_ak.png" alt="Termkit AK preset demo" width="900"/>
+</div>
+<p align="center"><strong><em>Figure 1:</em></strong> Shipped <code>ak</code> preset (Nerd Font + fastfetch + two-line agnoster prompt)</p>
+
 ## Documentation
 
 | File | Description |
