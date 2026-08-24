@@ -1,6 +1,6 @@
-<h1 align="center">AK preset — sample walkthrough</h1>
+<h1 align="center">AK preset: sample walkthrough</h1>
 
-Applies the shipped **ak** preset end-to-end, then shows how to fork it into your own theme. Read [00-guide-setup.md](00-guide-setup.md) first — assumes zsh + oh-my-zsh + fastfetch already installed.
+Applies the shipped **ak** preset end-to-end, then shows how to fork it into your own theme. Read [00-guide-setup.md](00-guide-setup.md) first; assumes zsh + oh-my-zsh + fastfetch already installed.
 
 ---
 
@@ -60,7 +60,7 @@ config=ak
 enabled=true
 ```
 
-> **Note:** Values are basenames — Termkit appends the right extension. Use `ak-small` in `logo.file` for the compact variant. After apply, set your terminal emulator font — see [00-guide-setup.md Section VI.2](00-guide-setup.md#2-set-your-terminal-to-use-it).
+> **Note:** Values are basenames; Termkit appends the right extension. Use `ak-small` in `logo.file` for the compact variant. After apply, set your terminal emulator font. See [00-guide-setup.md Section VI.2](00-guide-setup.md#2-set-your-terminal-to-use-it).
 
 ### 2. Run apply
 
@@ -87,13 +87,13 @@ Or open a new terminal.
 
 ## III. Anatomy of ak.zsh-theme
 
-`ak.zsh-theme` (~200 lines) is a fork of `pixegami-agnoster`. Every customization point has a `# TWEAK:` marker inline — jump to them with:
+`ak.zsh-theme` (~200 lines) is a fork of `pixegami-agnoster`. Every customization point has a `# TWEAK:` marker inline. Jump to them with:
 
 ```
 grep -n TWEAK configs/themes/zsh/ak.zsh-theme
 ```
 
-**Structure**: the prompt builds from **segments** — colored blocks separated by a Powerline arrow. Each segment picks bg/fg colors and prints content; a helper draws the arrow into the next segment's color.
+**Structure**: the prompt builds from **segments**, colored blocks separated by a Powerline arrow. Each segment picks bg/fg colors and prints content; a helper draws the arrow into the next segment's color.
 
 **Functions (in order rendered by `build_prompt`):**
 
@@ -104,14 +104,14 @@ grep -n TWEAK configs/themes/zsh/ak.zsh-theme
 | `prompt_virtualenv` | Python venv (Anaconda-only) | swap body for plain `$VIRTUAL_ENV` |
 | `prompt_context` | `user` in green/dark-grey, yellow if root | colors, add `@host` |
 | `prompt_git` | Branch + dirty/clean colors + mode marker (bisect/merge/rebase) | colors, branch icon, ahead/behind |
-| `prompt_bzr` / `prompt_hg` | Bazaar / Mercurial (comment out if git-only) | — |
+| `prompt_bzr` / `prompt_hg` | Bazaar / Mercurial (comment out if git-only) | - |
 | `prompt_end` | Closes final segment | plumbing |
 
-**Helpers** (leave alone): `prompt_segment` chains colored blocks; `SEGMENT_SEPARATOR=$''` is the Powerline arrow — swap for `>` / `|` / `❯` if you don't have a Nerd font (has a `# TWEAK:` marker for this).
+**Helpers** (leave alone): `prompt_segment` chains colored blocks; `SEGMENT_SEPARATOR=$''` is the Powerline arrow. Swap for `>` / `|` / `❯` if you don't have a Nerd font (has a `# TWEAK:` marker for this).
 
-**PROMPT line** at the bottom just resets styles and calls `build_prompt` per render — rarely edit.
+**PROMPT line** at the bottom just resets styles and calls `build_prompt` per render. Rarely edit.
 
-`RETVAL=$?` at the top of `build_prompt` captures the last exit code — **don't move it** or `prompt_status` always reports success.
+`RETVAL=$?` at the top of `build_prompt` captures the last exit code. **Don't move it** or `prompt_status` always reports success.
 
 ---
 
@@ -119,7 +119,7 @@ grep -n TWEAK configs/themes/zsh/ak.zsh-theme
 
 ### Logo file
 
-`configs/logo/*.txt` are plain text — box-drawing chars, ASCII art, unicode. `ak.txt` is full, `ak-small.txt` compact. Generate your own with [`jp2a`](https://github.com/Talinx/jp2a) or [`ascii-image-converter`](https://github.com/TheZoraiz/ascii-image-converter). Keep width reasonable — fastfetch prints info on the right.
+`configs/logo/*.txt` are plain text: box-drawing chars, ASCII art, unicode. `ak.txt` is full, `ak-small.txt` compact. Generate your own with [`jp2a`](https://github.com/Talinx/jp2a) or [`ascii-image-converter`](https://github.com/TheZoraiz/ascii-image-converter). Keep width reasonable; fastfetch prints info on the right.
 
 ### Aliases
 
@@ -130,7 +130,7 @@ alias k='kubectl'
 alias dc='docker compose'
 ```
 
-New terminals pick up changes immediately — no re-apply needed.
+New terminals pick up changes immediately; no re-apply needed.
 
 ### Fastfetch toggle
 
@@ -155,7 +155,7 @@ Format: [fastfetch wiki](https://github.com/fastfetch-cli/fastfetch/wiki/Configu
 cp configs/themes/zsh/ak.zsh-theme configs/themes/zsh/mytheme.zsh-theme
 ```
 
-Edit `mytheme.zsh-theme` — jump between edit points via `grep -n TWEAK mytheme.zsh-theme`. Common starters: swap colors in `prompt_context` / `prompt_git`, comment out `prompt_bzr` / `prompt_hg`.
+Edit `mytheme.zsh-theme`; jump between edit points via `grep -n TWEAK mytheme.zsh-theme`. Common starters: swap colors in `prompt_context` / `prompt_git`, comment out `prompt_bzr` / `prompt_hg`.
 
 Point termkit at it:
 
