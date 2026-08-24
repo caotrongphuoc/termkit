@@ -13,32 +13,27 @@
 
 # Termkit - Terminal Setup Kit for Linux
 
-<center><img width="900" height="700" alt="AK Sample" src="resources/images/sample_ak.png" />
-</center>
-
 <hr>
 
 ## Documentation
 
 | File | Description |
-|---|---|
-| [README.md](README.md) | Project overview, layout, commands, and uninstall. |
+| --- | --- |
+| [README.md](README.md) | Main project overview, quick start, commands, repo layout, and uninstall. |
 | [docs/00-guide-setup.md](docs/00-guide-setup.md) | Install prerequisites (bash, zsh, oh-my-zsh, plugins, fastfetch, fontconfig) for each target shell. |
 | [docs/01-guide-settings.md](docs/01-guide-settings.md) | `settings.conf` schema and what the `apply` command does to your shell rc. |
 | [docs/02-guide-extending.md](docs/02-guide-extending.md) | Add your own theme, font, or logo to the kit. |
 | [docs/03-guide-ak-sample.md](docs/03-guide-ak-sample.md) | Walkthrough of the shipped `ak` preset with a piece-by-piece breakdown of `ak.zsh-theme` so you can fork it into your own. |
 
-New here? Read the docs in order. **00** installs prereqs, **01** explains the schema, **02** shows how to add your own, **03** walks through the shipped preset piece by piece.
-
 ## Introduction
 
-Termkit is a small toolkit for configuring Linux terminals. Pick a theme, prompt, logo, aliases, and font, then apply them with one command. Works for both **bash** and **zsh** setups. While using termkit, you rely on the following building blocks:
+Termkit is a small toolkit for configuring Linux terminals, a practical way to keep a consistent prompt, logo, aliases, and font across both bash and zsh with a single command. While using Termkit, you rely on the following core building blocks:
 
 - **State file:** A single `configs/settings.conf` captures every choice you have made.
 - **Managed block:** Termkit only writes a fenced block into `~/.bashrc` or `~/.zshrc`; the rest of the file is untouched.
 - **Reversible:** Every apply is idempotent; a single `uninstall` command wipes the block and any files Termkit installed.
 
-### I. How to Use
+### I. Quick Start
 
 Once prerequisites are installed (see [docs/00-guide-setup.md](docs/00-guide-setup.md)):
 
@@ -53,15 +48,21 @@ Then open a new terminal to see changes. To undo: `./install.sh uninstall`.
 
 For a ready-to-paste preset, see [docs/03-guide-ak-sample.md](docs/03-guide-ak-sample.md).
 
+> **Note:** New here? Read the docs in order. **00** installs prereqs, **01** explains the schema, **02** shows how to add your own, **03** walks through the shipped preset piece by piece.
+
 ### II. Commands
 
+<div align="center">
+
 | Command | What it does |
-|---|---|
+| --- | --- |
 | `./install.sh apply` | Reads settings.conf and applies to your shell rc. |
 | `./install.sh status` | Prints current settings.conf values. |
 | `./install.sh clean` | Resets settings.conf to defaults (old file kept as `.bak`). |
 | `./install.sh uninstall` | Removes Termkit changes from both `~/.bashrc` and `~/.zshrc`. |
 | `./install.sh` | Prints usage. |
+
+</div>
 
 ### III. Repo Layout
 
@@ -99,7 +100,7 @@ cp ~/.zshrc.termkit.bak  ~/.zshrc
 
 ## Contact & Support
 
-<p style="font-size: 20px;"><strong>Cao Trong Phuoc</strong> - Software Engineer - Embedded Systems</p>
+<p style="font-size: 20px;"><strong>Cao Trong Phuoc</strong> - Software Engineer</p>
 
 ``` Note
 Thank you for visiting this repository.
