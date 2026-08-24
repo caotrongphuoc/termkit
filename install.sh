@@ -7,7 +7,7 @@ CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
 
 # --- INI helpers -------------------------------------------------------------
 
-# conf_get <section> <key> — print value, or empty if missing.
+# conf_get <section> <key>: print value, or empty if missing.
 conf_get()
 {
     local section=$1 key=$2
@@ -22,7 +22,7 @@ conf_get()
     ' "$CONF_FILE"
 }
 
-# conf_set <section> <key> <value> — update in place, create if missing.
+# conf_set <section> <key> <value>: update in place, create if missing.
 conf_set()
 {
     local section=$1 key=$2 value=$3
@@ -51,7 +51,7 @@ conf_set()
     mv "$tmp" "$CONF_FILE"
 }
 
-# _get <section> <key> <default> — conf_get with a fallback if empty.
+# _get <section> <key> <default>: conf_get with a fallback if empty.
 _get()
 {
     local v
@@ -62,7 +62,7 @@ _get()
 
 # --- config loader -----------------------------------------------------------
 
-# load_settings — read settings.conf into shell variables.
+# load_settings: read settings.conf into shell variables.
 load_settings()
 {
     if [ ! -f "$CONF_FILE" ]; then
@@ -216,7 +216,7 @@ apply_bash()
 
 # --- helpers -----------------------------------------------------------------
 
-# _install_font — copy .ttf to ~/.local/share/fonts + fc-cache. No-op unless install=true.
+# _install_font: copy .ttf to ~/.local/share/fonts + fc-cache. No-op unless install=true.
 _install_font()
 {
     [ "$font_install" != "true" ] && return
@@ -238,7 +238,7 @@ _install_font()
     fi
 }
 
-# _fix_omz_perms — chmod g-w,o-w on oh-my-zsh dirs to silence compaudit. Idempotent.
+# _fix_omz_perms: chmod g-w,o-w on oh-my-zsh dirs to silence compaudit. Idempotent.
 _fix_omz_perms()
 {
     [ -d "$HOME/.oh-my-zsh" ] || return
@@ -259,13 +259,13 @@ _fix_omz_perms()
     [ "$fixed" -gt 0 ] && echo "Tightened $fixed oh-my-zsh dir(s) to silence compaudit"
 }
 
-# _strip_managed_block <file> — remove the block from BLOCK_START to BLOCK_END.
+# _strip_managed_block <file>: remove the block from BLOCK_START to BLOCK_END.
 _strip_managed_block()
 {
     sed -i "\|^${BLOCK_START}\$|,\|^${BLOCK_END}\$|d" "$1"
 }
 
-# _write_managed_block <file> <theme_line> — append managed block. Pass empty
+# _write_managed_block <file> <theme_line>: append managed block. Pass empty
 # theme_line for oh-my-zsh themes (loaded via ZSH_THEME, not sourced here).
 # Reads $logo_cmd and $aliases_path from the caller.
 _write_managed_block()
@@ -302,7 +302,7 @@ _patch_zshrc_line()
     fi
 }
 
-# _apply_fastfetch_config — overwrite ~/.config/fastfetch/config.jsonc. No-op if config=none.
+# _apply_fastfetch_config: overwrite ~/.config/fastfetch/config.jsonc. No-op if config=none.
 _apply_fastfetch_config()
 {
     [ "$fastfetch_config" = "none" ] && return
@@ -316,7 +316,7 @@ _apply_fastfetch_config()
     echo "Installed fastfetch config: $HOME/.config/fastfetch/config.jsonc"
 }
 
-# _render_logo_cmd <path> — print the shell line to display the logo (fastfetch or cat).
+# _render_logo_cmd <path>: print the shell line to display the logo (fastfetch or cat).
 _render_logo_cmd()
 {
     local path=$1
