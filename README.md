@@ -5,10 +5,10 @@
 </div>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/shell-Bash%20%7C%20Zsh-blue?style=flat-square&logo=gnu-bash&logoColor=white" alt="Shell">
-  <img src="https://img.shields.io/badge/os-Linux-blue?style=flat-square&logo=linux&logoColor=white" alt="OS">
-  <img src="https://img.shields.io/badge/framework-oh--my--zsh-blue?style=flat-square" alt="Framework">
-  <img src="https://img.shields.io/badge/font-Nerd%20Font-blue?style=flat-square" alt="Font">
+  <img src="https://img.shields.io/badge/shell-Bash%20%7C%20Zsh-red?style=flat-square&logo=gnu-bash&logoColor=white" alt="Shell">
+  <img src="https://img.shields.io/badge/os-Linux-red?style=flat-square&logo=linux&logoColor=white" alt="OS">
+  <img src="https://img.shields.io/badge/framework-oh--my--zsh-red?style=flat-square" alt="Framework">
+  <img src="https://img.shields.io/badge/font-Nerd%20Font-red?style=flat-square" alt="Font">
 </p>
 
 # Termkit - Terminal Setup Kit for Linux
