@@ -9,6 +9,7 @@
   <img src="https://img.shields.io/badge/os-Linux-red?style=flat-square&logo=linux&logoColor=white" alt="OS">
   <img src="https://img.shields.io/badge/framework-oh--my--zsh-red?style=flat-square" alt="Framework">
   <img src="https://img.shields.io/badge/font-Nerd%20Font-red?style=flat-square" alt="Font">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-red?style=flat-square" alt="License"></a>
 </p>
 
 # Termkit - Terminal Setup Kit for Linux
@@ -79,6 +80,7 @@ For a ready-to-paste preset, see [docs/03-guide-ak-sample.md](docs/03-guide-ak-s
 ```
 termkit/
 ├── install.sh
+├── LICENSE
 ├── configs/
 │   ├── settings.conf              # your picks live here
 │   ├── settings.default.conf      # defaults restored by install.sh clean
@@ -108,6 +110,15 @@ Fonts and themes from other sources are left alone. Backups at `~/.bashrc.termki
 cp ~/.bashrc.termkit.bak ~/.bashrc
 cp ~/.zshrc.termkit.bak  ~/.zshrc
 ```
+
+## License
+
+Termkit is released under the [MIT License](LICENSE).
+
+Bundled third-party files keep their own licenses:
+
+- `configs/fonts/JetBrainsMonoNerdFont-Regular.ttf`: [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) patched by [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts), under the [SIL Open Font License 1.1](https://openfontlicense.org).
+- `configs/themes/zsh/ak.zsh-theme`: derived from [agnoster](https://github.com/agnoster/agnoster-zsh-theme) via [pixegami/terminal-profile](https://github.com/pixegami/terminal-profile).
 
 ## Contact & Support
 
