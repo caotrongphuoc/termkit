@@ -5,6 +5,7 @@ set -uo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
+DEFAULT_CONF_FILE="$SCRIPT_DIR/configs/settings.default.conf"
 
 BLOCK_START="# >>> termkit start >>>"
 BLOCK_END="# <<< termkit end <<<"
@@ -410,56 +411,12 @@ show_status()
 
 reset_settings()
 {
+    [ -f "$DEFAULT_CONF_FILE" ] || die "default settings missing at $DEFAULT_CONF_FILE"
     if [ -f "$CONF_FILE" ]; then
         echo "Backup old settings to $CONF_FILE.bak"
         cp "$CONF_FILE" "$CONF_FILE.bak"
     fi
-
-    cat > "$CONF_FILE" <<'EOF'
-# termkit state file.
-# Edit values below then run: ./install.sh apply
-# Comments start with '#'. Values are: key=value under [sections].
-
-[shell]
-# name: bash | zsh
-name=bash
-
-[zsh]
-# plugins: space-separated list of oh-my-zsh plugin names, or empty.
-#          When non-empty and shell=zsh, apply patches the plugins=(...)
-#          line in ~/.zshrc before the oh-my-zsh source line.
-#          Example: plugins=git zsh-syntax-highlighting zsh-autosuggestions
-plugins=
-
-[theme]
-# name: basename of a file in configs/themes/<shell>/
-#       bash: matches <name>.bash
-#       zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
-name=default
-
-[font]
-# name: basename of a file in configs/fonts/*.ttf, or 'none'
-name=none
-# install: true = copy the .ttf to ~/.local/share/fonts and refresh cache
-install=false
-
-[logo]
-# enabled: true = print the logo on shell start
-enabled=false
-# file: basename of a file in configs/logo/*.txt, or 'none'
-file=none
-# use_fastfetch: true = print via `fastfetch --logo` (falls back to `cat` if missing)
-use_fastfetch=false
-
-[fastfetch]
-# config: basename of a file in configs/fastfetch/*.jsonc, or 'none'
-#         When set, apply overwrites ~/.config/fastfetch/config.jsonc with it.
-config=none
-
-[aliases]
-# enabled: true = source configs/aliases.sh on shell start
-enabled=false
-EOF
+    cp "$DEFAULT_CONF_FILE" "$CONF_FILE"
     echo "Settings reset to defaults at $CONF_FILE"
 }
 
