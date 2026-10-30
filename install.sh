@@ -1,8 +1,29 @@
 #!/usr/bin/env bash
 # termkit installer. Reads configs/settings.conf and applies to bash or zsh.
 
+set -uo pipefail
+
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 CONF_FILE="$SCRIPT_DIR/configs/settings.conf"
+
+BLOCK_START="# >>> termkit start >>>"
+BLOCK_END="# <<< termkit end <<<"
+
+
+# --- logging -----------------------------------------------------------------
+
+# die <msg>: print to stderr and exit 1.
+die()
+{
+    echo "$*" >&2
+    exit 1
+}
+
+# warn <msg>: print a WARNING line to stderr.
+warn()
+{
+    echo "WARNING: $*" >&2
+}
 
 
 # --- INI helpers -------------------------------------------------------------
@@ -65,10 +86,7 @@ _get()
 # load_settings: read settings.conf into shell variables.
 load_settings()
 {
-    if [ ! -f "$CONF_FILE" ]; then
-        echo "settings.conf missing at $CONF_FILE"
-        exit 1
-    fi
+    [ -f "$CONF_FILE" ] || die "settings.conf missing at $CONF_FILE"
 
     shell_name=$(_get shell name bash)
     zsh_plugins=$(conf_get zsh plugins)
@@ -83,137 +101,6 @@ load_settings()
 }
 
 
-# --- actions -----------------------------------------------------------------
-
-show_status()
-{
-    load_settings
-    echo "=== termkit status ==="
-    echo " settings file : $CONF_FILE"
-    echo " shell         : $shell_name"
-    [ "$shell_name" = "zsh" ] && echo " zsh plugins   : ${zsh_plugins:-(none)}"
-    echo " theme         : $theme_name"
-    echo " font          : $font_name  (install: $font_install)"
-    echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
-    echo " fastfetch cfg : $fastfetch_config"
-    echo " aliases       : $aliases_enabled"
-}
-
-reset_settings()
-{
-    if [ -f "$CONF_FILE" ]; then
-        echo "Backup old settings to $CONF_FILE.bak"
-        cp "$CONF_FILE" "$CONF_FILE.bak"
-    fi
-
-    cat > "$CONF_FILE" <<'EOF'
-# termkit state file.
-# Edit values below then run: ./install.sh apply
-# Comments start with '#'. Values are: key=value under [sections].
-
-[shell]
-# name: bash | zsh
-name=bash
-
-[zsh]
-# plugins: space-separated list of oh-my-zsh plugin names, or empty.
-#          When non-empty and shell=zsh, apply patches the plugins=(...)
-#          line in ~/.zshrc before the oh-my-zsh source line.
-#          Example: plugins=git zsh-syntax-highlighting zsh-autosuggestions
-plugins=
-
-[theme]
-# name: basename of a file in configs/themes/<shell>/
-#       bash: matches <name>.bash
-#       zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
-name=default
-
-[font]
-# name: basename of a file in configs/fonts/*.ttf, or 'none'
-name=none
-# install: true = copy the .ttf to ~/.local/share/fonts and refresh cache
-install=false
-
-[logo]
-# enabled: true = print the logo on shell start
-enabled=false
-# file: basename of a file in configs/logo/*.txt, or 'none'
-file=none
-# use_fastfetch: true = print via `fastfetch --logo` (falls back to `cat` if missing)
-use_fastfetch=false
-
-[fastfetch]
-# config: basename of a file in configs/fastfetch/*.jsonc, or 'none'
-#         When set, apply overwrites ~/.config/fastfetch/config.jsonc with it.
-config=none
-
-[aliases]
-# enabled: true = source configs/aliases.sh on shell start
-enabled=false
-EOF
-    echo "Settings reset to defaults at $CONF_FILE"
-}
-
-BLOCK_START="# >>> termkit start >>>"
-BLOCK_END="# <<< termkit end <<<"
-
-apply_all()
-{
-    load_settings
-    case "$shell_name" in
-        bash) apply_bash ;;
-        zsh)  apply_zsh ;;
-        *) echo "unsupported shell: $shell_name (expected: bash or zsh)"; exit 1 ;;
-    esac
-}
-
-apply_bash()
-{
-    local bashrc="$HOME/.bashrc"
-    local backup="$HOME/.bashrc.termkit.bak"
-
-    [ -f "$bashrc" ] || touch "$bashrc"
-    if [ ! -f "$backup" ]; then
-        cp "$bashrc" "$backup"
-        echo "Backup created: $backup"
-    fi
-
-    local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.bash"
-    if [ ! -f "$theme_file" ]; then
-        echo "theme file not found: $theme_file"
-        exit 1
-    fi
-
-    local logo_path=""
-    if [ "$logo_enabled" = "true" ] && [ "$logo_file" != "none" ]; then
-        logo_path="$SCRIPT_DIR/configs/logo/$logo_file.txt"
-        if [ ! -f "$logo_path" ]; then
-            echo "logo file not found: $logo_path"
-            exit 1
-        fi
-    fi
-
-    local aliases_path=""
-    if [ "$aliases_enabled" = "true" ]; then
-        aliases_path="$SCRIPT_DIR/configs/aliases.sh"
-        if [ ! -f "$aliases_path" ]; then
-            echo "aliases file not found: $aliases_path"
-            exit 1
-        fi
-    fi
-
-    _install_font
-    _apply_fastfetch_config
-
-    local logo_cmd=""
-    [ -n "$logo_path" ] && logo_cmd=$(_render_logo_cmd "$logo_path")
-
-    _strip_managed_block "$bashrc"
-    _write_managed_block "$bashrc" "source \"$theme_file\""
-
-    echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
-}
-
 # --- helpers -----------------------------------------------------------------
 
 # _install_font: copy .ttf to ~/.local/share/fonts + fc-cache. No-op unless install=true.
@@ -223,10 +110,7 @@ _install_font()
     [ "$font_name" = "none" ] && return
 
     local font_path="$SCRIPT_DIR/configs/fonts/$font_name.ttf"
-    if [ ! -f "$font_path" ]; then
-        echo "font file not found: $font_path"
-        exit 1
-    fi
+    [ -f "$font_path" ] || die "font file not found: $font_path"
     mkdir -p "$HOME/.local/share/fonts"
     cp -f "$font_path" "$HOME/.local/share/fonts/"
     echo "Installed font: $font_name.ttf"
@@ -298,7 +182,7 @@ _patch_zshrc_line()
         echo "Inserted '$new' before oh-my-zsh source line in $zshrc"
     else
         rm -f "$tmp"
-        echo "WARNING: no $label line or oh-my-zsh source in $zshrc. Add manually: $new"
+        warn "no $label line or oh-my-zsh source in $zshrc. Add manually: $new"
     fi
 }
 
@@ -307,10 +191,7 @@ _apply_fastfetch_config()
 {
     [ "$fastfetch_config" = "none" ] && return
     local src="$SCRIPT_DIR/configs/fastfetch/$fastfetch_config.jsonc"
-    if [ ! -f "$src" ]; then
-        echo "fastfetch config not found: $src"
-        exit 1
-    fi
+    [ -f "$src" ] || die "fastfetch config not found: $src"
     mkdir -p "$HOME/.config/fastfetch"
     cp -f "$src" "$HOME/.config/fastfetch/config.jsonc"
     echo "Installed fastfetch config: $HOME/.config/fastfetch/config.jsonc"
@@ -325,12 +206,61 @@ _render_logo_cmd()
             printf 'fastfetch --logo "%s"\n' "$path"
             return
         fi
-        echo "WARNING: use_fastfetch=true but fastfetch not found; falling back to cat" >&2
+        warn "use_fastfetch=true but fastfetch not found; falling back to cat"
     fi
     printf 'cat "%s"\n' "$path"
 }
 
-# --- apply_zsh ---------------------------------------------------------------
+
+# --- apply -------------------------------------------------------------------
+
+apply_all()
+{
+    load_settings
+    case "$shell_name" in
+        bash) apply_bash ;;
+        zsh)  apply_zsh ;;
+        *) die "unsupported shell: $shell_name (expected: bash or zsh)" ;;
+    esac
+}
+
+apply_bash()
+{
+    local bashrc="$HOME/.bashrc"
+    local backup="$HOME/.bashrc.termkit.bak"
+
+    [ -f "$bashrc" ] || touch "$bashrc"
+    if [ ! -f "$backup" ]; then
+        cp "$bashrc" "$backup"
+        echo "Backup created: $backup"
+    fi
+
+    local theme_file="$SCRIPT_DIR/configs/themes/bash/$theme_name.bash"
+    [ -f "$theme_file" ] || die "theme file not found: $theme_file"
+
+    local logo_path=""
+    if [ "$logo_enabled" = "true" ] && [ "$logo_file" != "none" ]; then
+        logo_path="$SCRIPT_DIR/configs/logo/$logo_file.txt"
+        [ -f "$logo_path" ] || die "logo file not found: $logo_path"
+    fi
+
+    local aliases_path=""
+    if [ "$aliases_enabled" = "true" ]; then
+        aliases_path="$SCRIPT_DIR/configs/aliases.sh"
+        [ -f "$aliases_path" ] || die "aliases file not found: $aliases_path"
+    fi
+
+    _install_font
+    _apply_fastfetch_config
+
+    local logo_cmd=""
+    [ -n "$logo_path" ] && logo_cmd=$(_render_logo_cmd "$logo_path")
+
+    _strip_managed_block "$bashrc"
+    _write_managed_block "$bashrc" "source \"$theme_file\""
+
+    echo "Applied. Open a new shell (or run: source ~/.bashrc) to see changes."
+}
 
 apply_zsh()
 {
@@ -351,26 +281,19 @@ apply_zsh()
         theme_file="$SCRIPT_DIR/configs/themes/zsh/$theme_name.zsh-theme"
         is_omz_theme=1
     else
-        echo "zsh theme not found: configs/themes/zsh/$theme_name.zsh or .zsh-theme"
-        exit 1
+        die "zsh theme not found: configs/themes/zsh/$theme_name.zsh or .zsh-theme"
     fi
 
     local logo_path=""
     if [ "$logo_enabled" = "true" ] && [ "$logo_file" != "none" ]; then
         logo_path="$SCRIPT_DIR/configs/logo/$logo_file.txt"
-        if [ ! -f "$logo_path" ]; then
-            echo "logo file not found: $logo_path"
-            exit 1
-        fi
+        [ -f "$logo_path" ] || die "logo file not found: $logo_path"
     fi
 
     local aliases_path=""
     if [ "$aliases_enabled" = "true" ]; then
         aliases_path="$SCRIPT_DIR/configs/aliases.sh"
-        if [ ! -f "$aliases_path" ]; then
-            echo "aliases file not found: $aliases_path"
-            exit 1
-        fi
+        [ -f "$aliases_path" ] || die "aliases file not found: $aliases_path"
     fi
 
     _install_font
@@ -384,7 +307,7 @@ apply_zsh()
             echo "Installed oh-my-zsh theme: $omz_custom/$theme_name.zsh-theme"
             _patch_zshrc_line "ZSH_THEME=\"$theme_name\"" '^ZSH_THEME=' "ZSH_THEME"
         else
-            echo "WARNING: ~/.oh-my-zsh not found. Install oh-my-zsh first, then re-run apply."
+            warn "~/.oh-my-zsh not found. Install oh-my-zsh first, then re-run apply."
         fi
     fi
 
@@ -406,6 +329,7 @@ apply_zsh()
 
     echo "Applied. Open a new terminal (or 'exec zsh') to see changes."
 }
+
 
 # --- uninstall ---------------------------------------------------------------
 
@@ -496,9 +420,81 @@ uninstall_all()
 }
 
 
+# --- status / clean ----------------------------------------------------------
+
+show_status()
+{
+    load_settings
+    echo "=== termkit status ==="
+    echo " settings file : $CONF_FILE"
+    echo " shell         : $shell_name"
+    [ "$shell_name" = "zsh" ] && echo " zsh plugins   : ${zsh_plugins:-(none)}"
+    echo " theme         : $theme_name"
+    echo " font          : $font_name  (install: $font_install)"
+    echo " logo          : $logo_file  (enabled: $logo_enabled, fastfetch: $logo_fastfetch)"
+    echo " fastfetch cfg : $fastfetch_config"
+    echo " aliases       : $aliases_enabled"
+}
+
+reset_settings()
+{
+    if [ -f "$CONF_FILE" ]; then
+        echo "Backup old settings to $CONF_FILE.bak"
+        cp "$CONF_FILE" "$CONF_FILE.bak"
+    fi
+
+    cat > "$CONF_FILE" <<'EOF'
+# termkit state file.
+# Edit values below then run: ./install.sh apply
+# Comments start with '#'. Values are: key=value under [sections].
+
+[shell]
+# name: bash | zsh
+name=bash
+
+[zsh]
+# plugins: space-separated list of oh-my-zsh plugin names, or empty.
+#          When non-empty and shell=zsh, apply patches the plugins=(...)
+#          line in ~/.zshrc before the oh-my-zsh source line.
+#          Example: plugins=git zsh-syntax-highlighting zsh-autosuggestions
+plugins=
+
+[theme]
+# name: basename of a file in configs/themes/<shell>/
+#       bash: matches <name>.bash
+#       zsh:  matches <name>.zsh (standalone) or <name>.zsh-theme (oh-my-zsh)
+name=default
+
+[font]
+# name: basename of a file in configs/fonts/*.ttf, or 'none'
+name=none
+# install: true = copy the .ttf to ~/.local/share/fonts and refresh cache
+install=false
+
+[logo]
+# enabled: true = print the logo on shell start
+enabled=false
+# file: basename of a file in configs/logo/*.txt, or 'none'
+file=none
+# use_fastfetch: true = print via `fastfetch --logo` (falls back to `cat` if missing)
+use_fastfetch=false
+
+[fastfetch]
+# config: basename of a file in configs/fastfetch/*.jsonc, or 'none'
+#         When set, apply overwrites ~/.config/fastfetch/config.jsonc with it.
+config=none
+
+[aliases]
+# enabled: true = source configs/aliases.sh on shell start
+enabled=false
+EOF
+    echo "Settings reset to defaults at $CONF_FILE"
+}
+
+
 # --- dispatch ----------------------------------------------------------------
 
-case "$1" in
+case "${1:-}" in
     apply)     apply_all ;;
     uninstall) uninstall_all ;;
     status)    show_status ;;
