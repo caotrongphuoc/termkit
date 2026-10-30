@@ -114,6 +114,12 @@ _install_font()
     mkdir -p "$HOME/.local/share/fonts"
     cp -f "$font_path" "$HOME/.local/share/fonts/"
     echo "Installed font: $font_name.ttf"
+    _refresh_font_cache
+}
+
+# _refresh_font_cache: run fc-cache if available.
+_refresh_font_cache()
+{
     if command -v fc-cache >/dev/null 2>&1; then
         fc-cache -f >/dev/null 2>&1
         echo "Refreshed font cache"
@@ -318,90 +324,71 @@ apply_zsh()
 
 # --- uninstall ---------------------------------------------------------------
 
+# _remove_block <rc>: strip the managed block if present. Returns 1 if none.
+_remove_block()
+{
+    local rc=$1
+    [ -f "$rc" ] && grep -q "^${BLOCK_START}\$" "$rc" || return 1
+    _strip_managed_block "$rc"
+    echo "Removed termkit block from $rc"
+}
+
+# _remove_shipped <src_dir> <glob> <dest_dir> <label>: delete files in dest_dir
+# whose basename matches a file we ship in src_dir. Foreign files untouched.
+# Returns 1 if nothing was removed.
+_remove_shipped()
+{
+    local src_dir=$1 glob=$2 dest_dir=$3 label=$4
+    local f name removed=1
+    [ -d "$dest_dir" ] || return 1
+    for f in "$src_dir"/$glob; do
+        name=${f##*/}
+        [ -f "$f" ] && [ -f "$dest_dir/$name" ] || continue
+        rm -f "$dest_dir/$name"
+        echo "Removed $label: $dest_dir/$name"
+        removed=0
+    done
+    return "$removed"
+}
+
+# _remove_fastfetch_config: delete it only if it matches a shipped file byte-for-byte.
+# Returns 1 if nothing was removed.
+_remove_fastfetch_config()
+{
+    local ff_config="$HOME/.config/fastfetch/config.jsonc" shipped
+    [ -f "$ff_config" ] || return 1
+    for shipped in "$SCRIPT_DIR/configs/fastfetch"/*.jsonc; do
+        [ -f "$shipped" ] && cmp -s "$ff_config" "$shipped" || continue
+        rm -f "$ff_config"
+        echo "Removed fastfetch config: $ff_config"
+        return 0
+    done
+    return 1
+}
+
 uninstall_all()
 {
-    local bashrc="$HOME/.bashrc"
-    local zshrc="$HOME/.zshrc"
     local backup_bash="$HOME/.bashrc.termkit.bak"
     local backup_zsh="$HOME/.zshrc.termkit.bak"
-    local fonts_dir="$HOME/.local/share/fonts"
-    local omz_themes="$HOME/.oh-my-zsh/custom/themes"
     local removed_any=0
 
-    if [ -f "$bashrc" ] && grep -q "^${BLOCK_START}\$" "$bashrc" 2>/dev/null; then
-        _strip_managed_block "$bashrc"
-        echo "Removed termkit block from $bashrc"
+    _remove_block "$HOME/.bashrc" && removed_any=1
+    _remove_block "$HOME/.zshrc" && removed_any=1
+    if _remove_shipped "$SCRIPT_DIR/configs/fonts" '*.ttf' "$HOME/.local/share/fonts" "font"; then
         removed_any=1
+        _refresh_font_cache
     fi
-    if [ -f "$zshrc" ] && grep -q "^${BLOCK_START}\$" "$zshrc" 2>/dev/null; then
-        _strip_managed_block "$zshrc"
-        echo "Removed termkit block from $zshrc"
-        removed_any=1
-    fi
+    _remove_shipped "$SCRIPT_DIR/configs/themes/zsh" '*.zsh-theme' \
+        "$HOME/.oh-my-zsh/custom/themes" "oh-my-zsh theme" && removed_any=1
+    _remove_fastfetch_config && removed_any=1
 
-    # Remove fonts whose basename matches a file we ship. Foreign fonts untouched.
-    if [ -d "$fonts_dir" ]; then
-        local removed_font=0 name
-        local -a shipped_fonts=()
-        mapfile -t shipped_fonts < <(
-            cd "$SCRIPT_DIR/configs/fonts" 2>/dev/null || exit
-            shopt -s nullglob
-            for f in *.ttf; do printf '%s\n' "$f"; done
-        )
-        for name in "${shipped_fonts[@]}"; do
-            if [ -f "$fonts_dir/$name" ]; then
-                rm -f "$fonts_dir/$name"
-                echo "Removed font: $fonts_dir/$name"
-                removed_font=1
-                removed_any=1
-            fi
-        done
-        if [ "$removed_font" -eq 1 ] && command -v fc-cache >/dev/null 2>&1; then
-            fc-cache -f >/dev/null 2>&1
-            echo "Refreshed font cache"
-        fi
-    fi
-
-    # Remove oh-my-zsh custom themes matching shipped basenames. Foreign themes untouched.
-    if [ -d "$omz_themes" ]; then
-        local name
-        local -a shipped_omz=()
-        mapfile -t shipped_omz < <(
-            cd "$SCRIPT_DIR/configs/themes/zsh" 2>/dev/null || exit
-            shopt -s nullglob
-            for f in *.zsh-theme; do printf '%s\n' "$f"; done
-        )
-        for name in "${shipped_omz[@]}"; do
-            if [ -f "$omz_themes/$name" ]; then
-                rm -f "$omz_themes/$name"
-                echo "Removed oh-my-zsh theme: $omz_themes/$name"
-                removed_any=1
-            fi
-        done
-    fi
-
-    # Remove fastfetch config only if content matches a shipped file byte-for-byte.
-    local ff_config="$HOME/.config/fastfetch/config.jsonc"
-    if [ -f "$ff_config" ] && [ -d "$SCRIPT_DIR/configs/fastfetch" ]; then
-        local shipped
-        for shipped in "$SCRIPT_DIR/configs/fastfetch"/*.jsonc; do
-            [ -e "$shipped" ] || continue
-            if cmp -s "$ff_config" "$shipped"; then
-                rm -f "$ff_config"
-                echo "Removed fastfetch config: $ff_config"
-                removed_any=1
-                break
-            fi
-        done
-    fi
-
-    if [ "$removed_any" -eq 1 ]; then
-        echo "Uninstall complete."
-        [ -f "$backup_bash" ] && echo "  bashrc backup kept at: $backup_bash"
-        [ -f "$backup_zsh"  ] && echo "  zshrc backup kept at:  $backup_zsh"
-    else
+    if [ "$removed_any" -eq 0 ]; then
         echo "Nothing to uninstall."
+        return
     fi
+    echo "Uninstall complete."
+    if [ -f "$backup_bash" ]; then echo "  bashrc backup kept at: $backup_bash"; fi
+    if [ -f "$backup_zsh" ]; then echo "  zshrc backup kept at:  $backup_zsh"; fi
 }
 
 
