@@ -104,10 +104,9 @@ grep -n TWEAK configs/themes/zsh/ak.zsh-theme
 | `prompt_virtualenv` | Python venv (Anaconda-only) | swap body for plain `$VIRTUAL_ENV` |
 | `prompt_context` | `user` in green/dark-grey, yellow if root | colors, add `@host` |
 | `prompt_git` | Branch + dirty/clean colors + mode marker (bisect/merge/rebase) | colors, branch icon, ahead/behind |
-| `prompt_bzr` / `prompt_hg` | Bazaar / Mercurial (comment out if git-only) | - |
 | `prompt_end` | Closes final segment | plumbing |
 
-**Helpers** (leave alone): `prompt_segment` chains colored blocks; `SEGMENT_SEPARATOR=$''` is the Powerline arrow. Swap for `>` / `|` / `❯` if you don't have a Nerd font (has a `# TWEAK:` marker for this).
+**Helpers** (leave alone): `prompt_segment` chains colored blocks; the `zstyle ':vcs_info:*'` lines at the top set the staged/unstaged markers; `SEGMENT_SEPARATOR=$''` is the Powerline arrow. Swap for `>` / `|` / `❯` if you don't have a Nerd font (has a `# TWEAK:` marker for this).
 
 **PROMPT line** at the bottom just resets styles and calls `build_prompt` per render. Rarely edit.
 
@@ -155,7 +154,7 @@ Format: [fastfetch wiki](https://github.com/fastfetch-cli/fastfetch/wiki/Configu
 cp configs/themes/zsh/ak.zsh-theme configs/themes/zsh/mytheme.zsh-theme
 ```
 
-Edit `mytheme.zsh-theme`; jump between edit points via `grep -n TWEAK mytheme.zsh-theme`. Common starters: swap colors in `prompt_context` / `prompt_git`, comment out `prompt_bzr` / `prompt_hg`.
+Edit `mytheme.zsh-theme`; jump between edit points via `grep -n TWEAK mytheme.zsh-theme`. Common starters: swap colors in `prompt_context` / `prompt_git`, reorder or comment out segments in `build_prompt`.
 
 Point termkit at it:
 

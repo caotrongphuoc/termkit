@@ -68,7 +68,7 @@ For a ready-to-paste preset, see [docs/03-guide-ak-sample.md](docs/03-guide-ak-s
 | --- | --- |
 | `./install.sh apply` | Reads settings.conf and applies to your shell rc. |
 | `./install.sh status` | Prints current settings.conf values. |
-| `./install.sh clean` | Resets settings.conf to defaults (old file kept as `.bak`). |
+| `./install.sh clean` | Resets settings.conf from `settings.default.conf` (old file kept as `.bak`). |
 | `./install.sh uninstall` | Removes Termkit changes from both `~/.bashrc` and `~/.zshrc`. |
 | `./install.sh` | Prints usage. |
 
@@ -81,6 +81,7 @@ termkit/
 ├── install.sh
 ├── configs/
 │   ├── settings.conf              # your picks live here
+│   ├── settings.default.conf      # defaults restored by install.sh clean
 │   ├── themes/{bash,zsh}/         # shell prompts
 │   ├── fonts/*.ttf                # copied to ~/.local/share/fonts when enabled
 │   ├── logo/*.txt                 # printed on shell start when enabled
