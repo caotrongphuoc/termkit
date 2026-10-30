@@ -77,4 +77,4 @@ Drop `myconfig.jsonc` into `configs/fastfetch/`. See the [fastfetch wiki](https:
 config=myconfig
 ```
 
-On apply, overwrites `~/.config/fastfetch/config.jsonc`. On uninstall, removed only if unchanged since apply (byte-for-byte); hand-edits preserved.
+On apply, overwrites `~/.config/fastfetch/config.jsonc` and copies the `[logo] file` to `~/.config/fastfetch/logo.txt`; point `"logo": {"source": ...}` there to reuse it. On uninstall, removed only if unchanged since apply (byte-for-byte); hand-edits preserved.

@@ -65,7 +65,7 @@ Same as bash but for `~/.zshrc`. Also:
 
 - Re-running `apply` is idempotent; never stacks duplicate blocks.
 - `[font] install=true` → copy the `.ttf` to `~/.local/share/fonts/` + `fc-cache -f`.
-- `[fastfetch] config` non-none → overwrite `~/.config/fastfetch/config.jsonc`. On uninstall, removed only if unchanged since apply (byte-for-byte match with a shipped file); hand-edits are preserved.
+- `[fastfetch] config` non-none → overwrite `~/.config/fastfetch/config.jsonc`, and copy the `[logo] file` to `~/.config/fastfetch/logo.txt` (so plain `fastfetch` shows it too). On uninstall, removed only if unchanged since apply (byte-for-byte match with a shipped file); same rule for `logo.txt`; hand-edits are preserved.
 - Anything else in your shell rc is untouched.
 
 ---

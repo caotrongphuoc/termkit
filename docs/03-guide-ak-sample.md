@@ -137,7 +137,7 @@ New terminals pick up changes immediately; no re-apply needed.
 
 ### Fastfetch config file
 
-`[fastfetch] config=ak` overwrites `~/.config/fastfetch/config.jsonc` with `configs/fastfetch/ak.jsonc` on apply. Uninstall removes it only if unchanged since apply.
+`[fastfetch] config=ak` overwrites `~/.config/fastfetch/config.jsonc` with `configs/fastfetch/ak.jsonc` on apply, and copies the `[logo] file` to `~/.config/fastfetch/logo.txt` (which `ak.jsonc` reads). Uninstall removes both only if unchanged since apply.
 
 Two ways to customize the info lines:
 

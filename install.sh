@@ -240,7 +240,9 @@ _patch_zshrc_line()
     fi
 }
 
-# _apply_fastfetch_config: overwrite ~/.config/fastfetch/config.jsonc. No-op if config=none.
+# _apply_fastfetch_config: overwrite ~/.config/fastfetch/config.jsonc, and copy
+# the [logo] file to ~/.config/fastfetch/logo.txt so plain `fastfetch` shows it.
+# No-op if config=none.
 _apply_fastfetch_config()
 {
     [ "$fastfetch_config" = "none" ] && return
@@ -249,6 +251,12 @@ _apply_fastfetch_config()
     mkdir -p "$HOME/.config/fastfetch"
     cp -f "$src" "$HOME/.config/fastfetch/config.jsonc"
     echo "Installed fastfetch config: $HOME/.config/fastfetch/config.jsonc"
+
+    [ -z "$logo_file" ] || [ "$logo_file" = "none" ] && return
+    local logo_src="$SCRIPT_DIR/configs/logo/$logo_file.txt"
+    [ -f "$logo_src" ] || die "logo file not found: $logo_src"
+    cp -f "$logo_src" "$HOME/.config/fastfetch/logo.txt"
+    echo "Installed fastfetch logo: $HOME/.config/fastfetch/logo.txt"
 }
 
 # _render_logo_cmd <path>: print the shell line to display the logo (fastfetch or cat).
@@ -352,16 +360,16 @@ _remove_shipped()
     return "$removed"
 }
 
-# _remove_fastfetch_config: delete it only if it matches a shipped file byte-for-byte.
-# Returns 1 if nothing was removed.
-_remove_fastfetch_config()
+# _remove_if_shipped <file> <src_dir> <glob> <label>: delete file only if it
+# matches a shipped file byte-for-byte. Returns 1 if nothing was removed.
+_remove_if_shipped()
 {
-    local ff_config="$HOME/.config/fastfetch/config.jsonc" shipped
-    [ -f "$ff_config" ] || return 1
-    for shipped in "$SCRIPT_DIR/configs/fastfetch"/*.jsonc; do
-        [ -f "$shipped" ] && cmp -s "$ff_config" "$shipped" || continue
-        rm -f "$ff_config"
-        echo "Removed fastfetch config: $ff_config"
+    local file=$1 src_dir=$2 glob=$3 label=$4 shipped
+    [ -f "$file" ] || return 1
+    for shipped in "$src_dir"/$glob; do
+        [ -f "$shipped" ] && cmp -s "$file" "$shipped" || continue
+        rm -f "$file"
+        echo "Removed $label: $file"
         return 0
     done
     return 1
@@ -381,7 +389,10 @@ uninstall_all()
     fi
     _remove_shipped "$SCRIPT_DIR/configs/themes/zsh" '*.zsh-theme' \
         "$HOME/.oh-my-zsh/custom/themes" "oh-my-zsh theme" && removed_any=1
-    _remove_fastfetch_config && removed_any=1
+    _remove_if_shipped "$HOME/.config/fastfetch/config.jsonc" \
+        "$SCRIPT_DIR/configs/fastfetch" '*.jsonc' "fastfetch config" && removed_any=1
+    _remove_if_shipped "$HOME/.config/fastfetch/logo.txt" \
+        "$SCRIPT_DIR/configs/logo" '*.txt' "fastfetch logo" && removed_any=1
 
     if [ "$removed_any" -eq 0 ]; then
         echo "Nothing to uninstall."
